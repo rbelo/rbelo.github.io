@@ -12,7 +12,7 @@
 
 # theme                  : "minimal-mistakes-jekyll"
 remote_theme             : "mmistakes/minimal-mistakes"
-minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
+minimal_mistakes_skin    : "dark" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Site Settings
 locale                   : "en-US"
@@ -20,7 +20,7 @@ title                    : "Rodrigo Belo"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Rodrigo Belo"
-description              : "Professor, Information Systems"
+description              : "Information Systems, Artificial Intelligence, Data Science"
 url                      : "https://rodrigobelo.com" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "rbelo/rbelo.github.io" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
@@ -50,6 +50,7 @@ reCaptcha:
   siteKey                :
   secret                 :
 atom_feed:
+  hide                   : true
   path                   : # blank (default) uses feed.xml
 search                   : # true, false (default)
 search_full_content      : # true, false (default)
@@ -95,7 +96,7 @@ analytics:
 author:
   name             : "Rodrigo Belo"
   avatar           : "/assets/images/profile.jpeg"
-  bio              : "Professor, Information Systems, Artifical Intelligence, Data Science"
+  bio              : "Information Systems, Artifical Intelligence, Data Science"
   location         : "Lisbon, Portugal"
   email            : "rodrigo.belo@novasbe.pt"
   links:

@@ -1,11 +1,11 @@
 ---
 layout: single
-title: 
+title: Research
 permalink: /research/
 ---
 
-## Research 
 
 This is a test.
+
 
 
