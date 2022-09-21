@@ -4,8 +4,4 @@ title: Research
 permalink: /research/
 ---
 
-
-This is a test.
-
-
-
+{% include research.markdown %}

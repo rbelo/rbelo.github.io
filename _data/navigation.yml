@@ -1,4 +1,4 @@
-# main links links
+# main links
 main:
 #  - title: "Home"
 #    url: /
@@ -9,21 +9,20 @@ main:
 #  - title: "Projects"
 #    url: /projects/
 
-#  - title: "Research"
-#    url: /research/
+  - title: "Research"
+    url: /research/
 
 #  - title: "Talks"
-#    url: /talks/    
+#    url: /talks/
 
 #  - title: "Teaching"
-#    url: /teaching/    
-    
+#    url: /teaching/
+
 #  - title: "News"
 #    url: /posts/
-    
+
   - title: "CV"
     url: /cv/
-    
+
 #  - title: "Guide"
 #    url: /markdown/
-

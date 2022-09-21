@@ -4,7 +4,4 @@ title: Curriculum Vitae
 permalink: /cv/
 ---
 
-
-Here you can find the latest version of my [CV](https://www.dropbox.com/s/i4t9xedn73i2qd1/cv-rodrigo-belo.pdf?dl=0){:target="_blank"}.
-
-
+You can find the latest version of my CV  [here](https://www.dropbox.com/s/i4t9xedn73i2qd1/cv-rodrigo-belo.pdf?dl=0){:target="_blank"}.

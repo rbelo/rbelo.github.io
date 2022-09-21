@@ -1,0 +1,173 @@
+#+TITLE: Rodrigo Belo's Website
+
+* README
+
+This site is currently hosted at http://rbelo.github.io which is (apparentely) available on http://rodrigobelo.com.
+
+This is a Jekyll site, thus I have placed here all the content that may change. To publish the site we need to:
+ 1. Tangle this file (C-c C-v C-t) so that all the configuration and content files are created
+ 2. Commit the new and updated files on the local git repository
+ 3. Push the changes to the Github repository. This will publish the changes.
+
+
+* CONFIGURATION
+
+#+begin_src text :tangle _data/navigation.yml
+# main links
+main:
+#  - title: "Home"
+#    url: /
+
+  - title: "About"
+    url: /about/
+
+#  - title: "Projects"
+#    url: /projects/
+
+  - title: "Research"
+    url: /research/
+
+#  - title: "Talks"
+#    url: /talks/
+
+#  - title: "Teaching"
+#    url: /teaching/
+
+#  - title: "News"
+#    url: /posts/
+
+  - title: "CV"
+    url: /cv/
+
+#  - title: "Guide"
+#    url: /markdown/
+
+#+end_src
+
+* INDEX
+
+#+begin_src markdown :tangle index.markdown
+---
+layout: single
+permalink: /
+---
+
+I am a Professor of Information Systems in the group of Operations, Information and Technology at [Nova School of Business and Economics](http://novasbe.pt), Universidade Nova de Lisboa.
+
+My research focuses on digital technologies, on their effects on individual behavior and interactions (e.g., in media consumption, online dating, and technology-mediated learning), and on the implications for firms, their industries, and society at large.
+
+<!-- I have a PhD in Technological Change and Entrepreneurship from Carnegie Mellon University, an MSc in Engineering and Public Policy from Carnegie Mellon University, and a BSc in Computer Science and Engineering from Instituto Superior Técnico, University of Lisbon. Before joining the academia I worked as a software engineer and analyst in the transportation and government sectors. -->
+
+
+# Research
+
+{% include publications.markdown %}
+
+#+end_src
+
+* ABOUT
+
+#+begin_src markdown :tangle _pages/about.markdown
+---
+layout: single
+title:
+permalink: /about/
+---
+
+Rodrigo Belo is a Professor of Information Systems in the group of Operations, Information and Technology at [Nova School of Business and Economics](http://novasbe.pt), Universidade Nova de Lisboa.
+
+Rodrigo's research focuses on how digital technologies mediate interactions among economic agents. His research interests include how digitization and AI technologies are changing how individuals interact and influence each other (e.g., in media consumption, online dating, and technology-mediated learning), and on the implications for firms, their industries, and society at large. His work has been published in top journals in the field such as Management Science, Marketing Science, and MIS Quarterly. Rodrigo has led and collaborated in multiple projects with established firms and startups in the online and telecommunications sectors. His engagements include the design and deployment of large-scale real world randomized experiments to assess the effectiveness of marketing campaigns and to optimize online user engagement.
+
+Rodrigo holds a PhD in Technological Change and Entrepreneurship from Carnegie Mellon University, an MSc in Engineering and Public Policy from Carnegie Mellon University, and a BSc in Computer Science and Engineering from Instituto Superior Técnico, University of Lisbon. Before joining the academia Rodrigo worked as a software engineer and analyst in the transportation and government sectors.
+
+#+end_src
+
+* RESEARCH
+
+#+begin_src markdown :tangle _pages/research.md
+---
+layout: single
+title: Research
+permalink: /research/
+---
+
+{% include research.markdown %}
+#+end_src
+
+
+#+begin_src markdown :tangle _includes/research.markdown
+
+My research is motivated by the choices individuals face upon the introduction of new technologies and products and by the aggregate dynamics accruing from these disruptions. I am interested in the digitization process and in how its outcomes are shaping the ways individuals interact with technology and with each other. I am equally interested in the methods that aim at identifying causal effects, namely in randomized experiments. In particular, I am interested randomized experiments in networked environments, in which interactions among treatment units create additional challenges. I am also interested in the combination of randomized experiments with machine learning methods to identify heterogeneous treatment effects and to achieve optimal treatment assignment to each treatment unit.
+
+<!-- I currently pursue two streams of research. A first stream of research focuses on Pricing, Advertising and Peer Influence in Digital Platforms. I am interested in understanding how platforms and products shape individual behavior, and how individuals influence each other in online settings. I have done work on the role of peer influence in large social networks in diverse contexts, applying both novel identification methods for observational data, and large scale randomized experiments. I have also done work on online member-get-member referral policies and on advertising. -->
+
+
+{% include publications.markdown %}
+
+#+end_src
+
+
+* PUBLICATIONS
+
+#+begin_src markdown :tangle _pages/publications.md
+---
+layout: single
+title: Publications
+permalink: /publications/
+---
+
+{% include publications.markdown %}
+#+end_src
+
+#+begin_src markdown :tangle _includes/publications.markdown
+
+## Working Papers and Work in Progress
+
+
+_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao _(second round revision at MIS Quarterly)_
+
+_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(second round revision at MSOM)_
+
+_Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
+
+
+## Journal Publications
+
+
+<!-- ### Digital Platforms and Media -->
+
+[_Incentive Misalignments in Programmatic Advertising: Evidence from a Randomized  Field Experiment_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4438), with Thomas Frick and Rahul Telang, _Management Science (forthcoming)_
+
+[_Social Referral Programs for Freemium Platforms_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4301), with Ting Li, _Management Science (forthcoming)_
+
+[_Free Riding in Products with Positive Network Externalities: Empirical Evidence from a Large Mobile Network_](https://misq.umn.edu/free-riding-in-products-with-positive-network-externalities-empirical-evidence-from-a-large-mobile-network.html), with Pedro Ferreira, _MIS Quarterly_, 2022. [_(preprint)_](https://osf.io/preprints/socarxiv/wz4k9/)
+
+[Welfare Properties of Recommender Systems: Theory and Results from a Randomized Experiment](https://misq.umn.edu/welfare-properties-of-profit-maximizing-recommender-systems-theory-and-results-from-a-randomized-experiment.html), with Pedro Ferreira, Xiaochen Zang and Miguel Godinho de Matos, _MIS Quarterly_, 2021. [_(preprint)_](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2856794)
+
+[_The Impact of Time-Shift TV on TV Viewership and on Ad Consumption_](https://pubsonline.informs.org/doi/10.1287/mnsc.2018.3084), with Miguel Godinho de Matos, Pedro Ferreira and Filipa Reis, _Management Science_, 2019.
+
+[_Target the Ego or Target the Group: Evidence from a Randomized Experiment in Proactive Churn Management_](https://pubsonline.informs.org/doi/10.1287/mksc.2018.1099), with Miguel Godinho de Matos and Pedro Ferreira, _Marketing Science_, 2018.
+
+<!-- ### Impact of Broadband in Education and Society -->
+
+[_Spillover Effects from Wiring Schools with Broadband: the Critical Role of Children_](https://pubsonline.informs.org/doi/10.1287/mnsc.2015.2324), with Pedro Ferreira and Rahul Telang, _Management Science_, 2016.
+
+[_Broadband in School: Impact on Student Performance_](https://pubsonline.informs.org/doi/10.1287/mnsc.2013.1770), with Pedro Ferreira and Rahul Telang, _Management Science_, 2014.
+
+
+
+#+end_src
+
+
+* CV
+
+#+begin_src markdown :tangle _pages/cv.markdown
+---
+layout: single
+title: Curriculum Vitae
+permalink: /cv/
+---
+
+You can find the latest version of my CV  [here](https://www.dropbox.com/s/i4t9xedn73i2qd1/cv-rodrigo-belo.pdf?dl=0){:target="_blank"}.
+
+#+end_src

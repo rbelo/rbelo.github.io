@@ -9,3 +9,7 @@ My research focuses on digital technologies, on their effects on individual beha
 
 <!-- I have a PhD in Technological Change and Entrepreneurship from Carnegie Mellon University, an MSc in Engineering and Public Policy from Carnegie Mellon University, and a BSc in Computer Science and Engineering from Instituto Superior Técnico, University of Lisbon. Before joining the academia I worked as a software engineer and analyst in the transportation and government sectors. -->
 
+
+# Research
+
+{% include publications.markdown %}
