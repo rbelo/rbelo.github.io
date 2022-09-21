@@ -1,4 +1,4 @@
-## Working Papers and Work in Progress
+## Work in Progress
 
 
 _Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao _(second round revision at MIS Quarterly)_
