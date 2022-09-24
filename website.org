@@ -80,9 +80,9 @@ Rodrigo's research focuses on how digital technologies mediate interactions amon
 
 ### Education
 
- - PhD - Technological Change and Entrepreneurship, Carnegie Mellon University
- - MSc - Engineering and Public Policy, Carnegie Mellon University
- - BSc - Computer Science and Engineering, University of Lisbon
+ - 2012 - PhD - Carnegie Mellon University <br> *Technological Change and Entrepreneurship*
+ - 2011 - MSc - Carnegie Mellon University <br> *Engineering and Public Policy*
+ - 2002 - BSc - University of Lisbon <br> *Computer Science and Engineering*
 
 <!-- Rodrigo holds a PhD in Technological Change and Entrepreneurship from Carnegie Mellon University, an MSc in Engineering and Public Policy from Carnegie Mellon University, and a BSc in Computer Science and Engineering from Instituto Superior Técnico, University of Lisbon. Before joining the academia Rodrigo worked as a software engineer and analyst in the transportation and government sectors. -->
 
@@ -165,6 +165,46 @@ _Algorithmic Explanations and Human Decision-Making: A Randomized Field Experime
 #+end_src
 
 
+* PROJECTS
+
+#+begin_src markdown :tangle _pages/category-archive.md
+---
+title: "Posts by Category"
+layout: categories
+permalink: /categories/
+entries_layout: grid
+author_profile: true
+---
+#+end_src
+
+#+begin_src markdown :tangle _pages/project-archive.md
+---
+title: "Projects"
+permalink: /projects/
+author_profile: true
+---
+<ul>
+  {% for post in site.categories.project %}
+    {% if post.url %}
+        <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+    {% endif %}
+  {% endfor %}
+</ul>
+#+end_src
+
+
+** REGCOMBS
+
+#+begin_src markdown :tangle project/_posts/2022-09-24-regcombs.md
+---
+title: "REGCOMBS: An R package to display regression results"
+---
+
+[REGCOMBS](https://github.com/rbelo/regcombs) (short for REGression COMBinationS) is an R package that runs and displays the results of different combinations of regressions without us having to explicitly detail everything. Think of it as a way to test multiple specifications and avoid verbosity.
+
+
+#+end_src
+
 * CV
 
 #+begin_src markdown :tangle _pages/cv.markdown
@@ -174,6 +214,6 @@ title: Curriculum Vitae
 permalink: /cv/
 ---
 
-You can find the latest version of my CV  [here](https://www.dropbox.com/s/i4t9xedn73i2qd1/cv-rodrigo-belo.pdf?dl=0){:target="_blank"}.
+You can find the latest version of my CV  [here]({{ site.url }}/cv-rodrigo-belo.pdf){:target="_blank"}.
 
 #+end_src

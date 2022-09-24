@@ -10,8 +10,8 @@ Rodrigo's research focuses on how digital technologies mediate interactions amon
 
 ### Education
 
- - PhD - Technological Change and Entrepreneurship, Carnegie Mellon University
- - MSc - Engineering and Public Policy, Carnegie Mellon University
- - BSc - Computer Science and Engineering, University of Lisbon
+ - 2012 - PhD - Carnegie Mellon University <br> *Technological Change and Entrepreneurship*
+ - 2011 - MSc - Carnegie Mellon University <br> *Engineering and Public Policy*
+ - 2002 - BSc - University of Lisbon <br> *Computer Science and Engineering*
 
 <!-- Rodrigo holds a PhD in Technological Change and Entrepreneurship from Carnegie Mellon University, an MSc in Engineering and Public Policy from Carnegie Mellon University, and a BSc in Computer Science and Engineering from Instituto Superior Técnico, University of Lisbon. Before joining the academia Rodrigo worked as a software engineer and analyst in the transportation and government sectors. -->

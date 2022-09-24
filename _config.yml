@@ -99,12 +99,9 @@ author:
   name             : "Rodrigo Belo"
   avatar           : "/assets/images/profile.jpeg"
   bio              : "Information Systems, Artifical Intelligence, Data Science"
-  location         : "Lisbon, Portugal"
-  email            : "rodrigo.belo@novasbe.pt"
+  # location         : "Lisbon, Portugal"
+  # email            : "rodrigo.belo@novasbe.pt"
   links:
-    - label: "Email"
-      icon: "fas fa-fw fa-envelope-square"
-      # url: "mailto:rodrigo.belo@novasbe.pt"
     - label: "Website"
       icon: "fas fa-fw fa-link"
       # url: "https://your-website.com"
@@ -120,6 +117,13 @@ author:
     - label: "Instagram"
       icon: "fab fa-fw fa-instagram"
       # url: "https://instagram.com/"
+    - label: "CV"
+      icon: "fas fa-fw fa-file"
+      url: "/cv-rodrigo-belo.pdf"
+    - label: "Email"
+      icon: "fas fa-fw fa-envelope-square"
+      url: "mailto:rodrigo.belo@novasbe.pt"
+
 
 # Site Footer
 footer:
@@ -273,13 +277,15 @@ compress_html:
 defaults:
   # _posts
   - scope:
-      path: "/posts/"
+      path: ""
       type: posts
     values:
       layout: single
+      classes: wide
       author_profile: true
-      read_time: true
-      comments: # true
+      read_time: false
+      show_date: true
+      comments: false
       share: false
       related: false
   # _pages
@@ -289,3 +295,4 @@ defaults:
     values:
       layout: single
       author_profile: true
+      classes: wide
