@@ -10,7 +10,7 @@ This is a Jekyll site, thus I have placed here all the content that may change. 
  3. Push the changes to the Github repository. This will publish the changes.
 
 
-* CONFIGURATION
+* NAVIGATION
 
 #+begin_src text :tangle _data/navigation.yml
 # main links
@@ -18,29 +18,29 @@ main:
 #  - title: "Home"
 #    url: /
 
-  - title: "About"
-    url: /about/
+ - title: "About"
+   url: /about/
 
-#  - title: "Projects"
-#    url: /projects/
-
-  - title: "Research"
-    url: /research/
+ - title: "Research"
+   url: /research/
 
 #  - title: "Talks"
 #    url: /talks/
 
-#  - title: "Teaching"
-#    url: /teaching/
+ - title: "Publications"
+   url: /publications/
+
+ - title: "Teaching"
+   url: /teaching/
+
+ - title: "Projects"
+   url: /projects/
 
 #  - title: "News"
 #    url: /posts/
 
-  - title: "CV"
-    url: /cv/
-
-#  - title: "Guide"
-#    url: /markdown/
+ - title: "CV"
+   url: /cv-rodrigo-belo.pdf
 
 #+end_src
 
@@ -165,6 +165,37 @@ _Algorithmic Explanations and Human Decision-Making: A Randomized Field Experime
 #+end_src
 
 
+* TEACHING
+
+
+#+begin_src markdown :tangle _pages/teaching.md
+---
+layout: single
+title: Teaching
+permalink: /teaching/
+---
+
+{% include teaching.markdown %}
+#+end_src
+
+#+begin_src markdown :tangle _includes/teaching.markdown
+
+## Nova SBE
+
+<!-- - Business Analytics (Executive Masters) -->
+- AI Impact on Business (MSc & Executive MBA) [2022- ]
+- Network Analytics (MSc) [2022- ]
+- _Marketing Analytics (MSc) [2021]_
+
+## Rotterdam School of Management
+
+- Big Data Management and Analytics (MSc) [2015- ]
+- _Network Data Analytics (MSc) [2016-2021]_
+- _Network Analytics (MSc) [2021]_
+- _Social Network Analysis (MSc) [2015]_
+
+#+end_src
+
 * PROJECTS
 
 #+begin_src markdown :tangle _pages/category-archive.md
@@ -203,17 +234,7 @@ title: "REGCOMBS: An R package to display regression results"
 [REGCOMBS](https://github.com/rbelo/regcombs) (short for REGression COMBinationS) is an R package that runs and displays the results of different combinations of regressions without us having to explicitly detail everything. Think of it as a way to test multiple specifications and avoid verbosity.
 
 
-#+end_src
 
-* CV
-
-#+begin_src markdown :tangle _pages/cv.markdown
----
-layout: single
-title: Curriculum Vitae
-permalink: /cv/
----
-
-You can find the latest version of my CV  [here]({{ site.url }}/cv-rodrigo-belo.pdf){:target="_blank"}.
 
 #+end_src
+

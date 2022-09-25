@@ -3,26 +3,26 @@ main:
 #  - title: "Home"
 #    url: /
 
-  - title: "About"
-    url: /about/
+ - title: "About"
+   url: /about/
 
-#  - title: "Projects"
-#    url: /projects/
-
-  - title: "Research"
-    url: /research/
+ - title: "Research"
+   url: /research/
 
 #  - title: "Talks"
 #    url: /talks/
 
-#  - title: "Teaching"
-#    url: /teaching/
+ - title: "Publications"
+   url: /publications/
+
+ - title: "Teaching"
+   url: /teaching/
+
+ - title: "Projects"
+   url: /projects/
 
 #  - title: "News"
 #    url: /posts/
 
-  - title: "CV"
-    url: /cv/
-
-#  - title: "Guide"
-#    url: /markdown/
+ - title: "CV"
+   url: /cv-rodrigo-belo.pdf
