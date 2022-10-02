@@ -44,6 +44,16 @@ main:
 
 #+end_src
 
+* CONFIGURATION
+
+** Remove Previous / Next Buttons on Posts
+
+To do so, we just need to create an empty file.
+
+#+begin_src html :tangle _includes/post_pagination.html
+
+#+end_src
+
 * INDEX
 
 #+begin_src markdown :tangle index.markdown
@@ -210,12 +220,15 @@ author_profile: true
 
 #+begin_src markdown :tangle _pages/project-archive.md
 ---
-title: "Projects"
+title: ""
 permalink: /projects/
 author_profile: true
 ---
+
+# Software
+
 <ul>
-  {% for post in site.categories.project %}
+  {% for post in site.categories.software %}
     {% if post.url %}
         <li><a href="{{ post.url }}">{{ post.title }}</a></li>
     {% endif %}
@@ -226,7 +239,7 @@ author_profile: true
 
 ** REGCOMBS
 
-#+begin_src markdown :tangle project/_posts/2022-09-24-regcombs.md
+#+begin_src markdown :tangle software/_posts/2022-09-24-regcombs.md
 ---
 title: "REGCOMBS: An R package to display regression results"
 ---
@@ -234,7 +247,21 @@ title: "REGCOMBS: An R package to display regression results"
 [REGCOMBS](https://github.com/rbelo/regcombs) (short for REGression COMBinationS) is an R package that runs and displays the results of different combinations of regressions without us having to explicitly detail everything. Think of it as a way to test multiple specifications and avoid verbosity.
 
 
+#+end_src
+
+** Fairness App
+
+#+begin_src markdown :tangle software/_posts/2022-10-02-shiny-app-ai-impact-on-business.md
+---
+title: "Shiny App: AI Impact on Business-Exploring Prediction and Judgment"
+---
+
+I've developed a [Shiny App](https://rbelo.shinyapps.io/ai-business/) that explores the implications of the quality of a classifier. Features include:
+  - ROC, cumulative response and Lift Curves
+  - Benefit/Cost matrix and Profit curves
+  - Discrimination and fairness analysis
+
+ - TODO: Improve the way prediction errors are calculated.
 
 
 #+end_src
-
