@@ -76,6 +76,23 @@ To do so, we just need to create an empty file.
 <!-- end custom head snippets -->
 #+end_src
 
+** Google Analytics
+
+#+begin_src html :tangle _includes/head/custom.html
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-60G1PZF3L7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-60G1PZF3L7');
+</script>
+
+#+end_src
+
+
 * INDEX
 
 #+begin_src markdown :tangle index.markdown
@@ -162,9 +179,9 @@ permalink: /publications/
 ## Work in Progress
 
 
-_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao _(second round revision at MIS Quarterly)_
+_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao _(second-round revision at MIS Quarterly)_
 
-_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(second round revision at MSOM)_
+_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(third-round revision at MSOM)_
 
 _Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
 
