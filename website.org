@@ -76,6 +76,14 @@ To do so, we just need to create an empty file.
 <!-- end custom head snippets -->
 #+end_src
 
+** Mastodon
+
+#+begin_src html :tangle _includes/head/custom.html
+<!--  Mastodon Verification -->
+<link rel="me" href="https://mastodon.social/@rbelo">
+#+end_src
+
+
 ** Google Analytics
 
 #+begin_src html :tangle _includes/head/custom.html
