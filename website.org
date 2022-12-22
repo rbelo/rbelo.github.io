@@ -80,7 +80,7 @@ To do so, we just need to create an empty file.
 
 #+begin_src html :tangle _includes/head/custom.html
 <!--  Mastodon Verification -->
-<link rel="me" href="https://mastodon.social/@rbelo">
+<a rel="me" href="https://econtwitter.net/@rbelo">Mastodon</a>
 #+end_src
 
 
