@@ -176,20 +176,13 @@ permalink: /publications/
 
 #+begin_src markdown :tangle _includes/publications.markdown
 
-## Work in Progress
-
-
-_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao _(third-round revision at MIS Quarterly)_
-
-_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(third-round revision at MSOM)_
-
-_Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
-
-
 ## Journal Publications
 
 
 <!-- ### Digital Platforms and Media -->
+
+_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao _MIS Quarterly (accepted)_
+
 
 [_Incentive Misalignments in Programmatic Advertising: Evidence from a Randomized  Field Experiment_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4438), with Thomas Frick and Rahul Telang, _Management Science (forthcoming)_
 
@@ -208,6 +201,17 @@ _Algorithmic Explanations and Human Decision-Making: A Randomized Field Experime
 [_Spillover Effects from Wiring Schools with Broadband: the Critical Role of Children_](https://pubsonline.informs.org/doi/10.1287/mnsc.2015.2324), with Pedro Ferreira and Rahul Telang, _Management Science_, 2016.
 
 [_Broadband in School: Impact on Student Performance_](https://pubsonline.informs.org/doi/10.1287/mnsc.2013.1770), with Pedro Ferreira and Rahul Telang, _Management Science_, 2014.
+
+## Work in Progress
+
+_Competition and Learning: The Impact of Gamified Competitive Structures on User Engagement in the Educational Online Platforms_, with Agnieszka Kloc and Ting Li
+
+_Could Reward Uncertainty Encourage Social Referral? Evidence from Large-scale Field Experiments_, with Andy Tao Li and Ting Li
+
+_Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
+
+_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(third-round revision at MSOM)_
+
 
 
 <!-- ## Conference Publications -->
