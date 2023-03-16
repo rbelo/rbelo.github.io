@@ -17,7 +17,7 @@ _Competition and Learning: The Impact of Gamified Competitive Structures on User
 _Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao, _MIS Quarterly (accepted)_
 
 
-[_Incentive Misalignments in Programmatic Advertising: Evidence from a Randomized  Field Experiment_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4438), with Thomas Frick and Rahul Telang, _Management Science_, 2023
+[_Incentive Misalignments in Programmatic Advertising: Evidence from a Randomized  Field Experiment_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4438), with Thomas Frick and Rahul Telang, _Management Science_, 2023.
 
 [_Social Referral Programs for Freemium Platforms_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4301), with Ting Li, _Management Science_, 2022.
 
