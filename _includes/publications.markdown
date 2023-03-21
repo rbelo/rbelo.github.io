@@ -1,6 +1,6 @@
 ## Work in Progress
 
-_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(third-round revision at MSOM)_
+_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(minor revision at MSOM)_
 
 _Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
 
