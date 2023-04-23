@@ -110,6 +110,8 @@ My research focuses on digital technologies, on their effects on individual beha
 
 # Research
 
+{% include workinprogress.markdown %}
+
 {% include publications.markdown %}
 
 #+end_src
@@ -158,8 +160,6 @@ My research is motivated by the choices individuals face upon the introduction o
 
 
 {% include workinprogress.markdown %}
-
-<!-- {% include publications.markdown %} -->
 
 #+end_src
 

@@ -4,5 +4,3 @@ My research is motivated by the choices individuals face upon the introduction o
 
 
 {% include workinprogress.markdown %}
-
-<!-- {% include publications.markdown %} -->

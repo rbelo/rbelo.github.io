@@ -12,4 +12,6 @@ My research focuses on digital technologies, on their effects on individual beha
 
 # Research
 
+{% include workinprogress.markdown %}
+
 {% include publications.markdown %}
