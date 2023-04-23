@@ -243,7 +243,7 @@ permalink: /teaching/
 
 <!-- - Business Analytics (Executive Masters) -->
 - AI Impact on Business (MSc & Executive MBA) [2022- ]
-- Network Analytics (MSc) [2022- ]
+- _Network Analytics (MSc) [2022-2023]_
 - _Marketing Analytics (MSc) [2021]_
 
 ## Rotterdam School of Management
@@ -300,7 +300,7 @@ title: "REGCOMBS: An R package to display regression results"
 
 ** Fairness App
 
-#+begin_src markdown :tangle software/_posts/2022-10-02-shiny-app-ai-impact-on-business.md
+#+begin_src markdown :tangle software/_posts/2023-04-20-shiny-app-ai-impact-on-business.md
 ---
 title: "Shiny App: AI Impact on Business-Exploring Prediction and Judgment"
 ---
@@ -309,9 +309,6 @@ I've developed a [Shiny App](https://rbelo.shinyapps.io/ai-business/) that explo
   - ROC, cumulative response and Lift Curves
   - Benefit/Cost matrix and Profit curves
   - Discrimination and fairness analysis
-
- - TODO: Improve the way prediction errors are calculated.
-
 
 #+end_src
 

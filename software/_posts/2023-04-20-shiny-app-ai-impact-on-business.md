@@ -6,5 +6,3 @@ I've developed a [Shiny App](https://rbelo.shinyapps.io/ai-business/) that explo
   - ROC, cumulative response and Lift Curves
   - Benefit/Cost matrix and Profit curves
   - Discrimination and fairness analysis
-
- - TODO: Improve the way prediction errors are calculated.

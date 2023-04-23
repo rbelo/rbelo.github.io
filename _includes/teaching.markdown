@@ -2,7 +2,7 @@
 
 <!-- - Business Analytics (Executive Masters) -->
 - AI Impact on Business (MSc & Executive MBA) [2022- ]
-- Network Analytics (MSc) [2022- ]
+- _Network Analytics (MSc) [2022-2023]_
 - _Marketing Analytics (MSc) [2021]_
 
 ## Rotterdam School of Management
