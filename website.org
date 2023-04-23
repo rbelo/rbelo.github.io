@@ -2,7 +2,7 @@
 
 * README
 
-This site is currently hosted at http://rbelo.github.io which is (apparentely) available on http://rodrigobelo.com.
+This site is currently hosted at http://rbelo.github.io which is (apparently) available on http://rodrigobelo.com.
 
 This is a Jekyll site, thus I have placed here all the content that may change. To publish the site we need to:
  1. Tangle this file (C-c C-v C-t) so that all the configuration and content files are created
@@ -157,10 +157,25 @@ My research is motivated by the choices individuals face upon the introduction o
 <!-- I currently pursue two streams of research. A first stream of research focuses on Pricing, Advertising and Peer Influence in Digital Platforms. I am interested in understanding how platforms and products shape individual behavior, and how individuals influence each other in online settings. I have done work on the role of peer influence in large social networks in diverse contexts, applying both novel identification methods for observational data, and large scale randomized experiments. I have also done work on online member-get-member referral policies and on advertising. -->
 
 
-{% include publications.markdown %}
+{% include workinprogress.markdown %}
+
+<!-- {% include publications.markdown %} -->
 
 #+end_src
 
+#+begin_src markdown :tangle _includes/workinprogress.markdown
+
+## Work in Progress
+
+_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(minor revision at MSOM)_
+
+_Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
+
+_Could Reward Uncertainty Encourage Social Referral? Evidence from Large-scale Field Experiments_, with Andy Tao Li and Ting Li
+
+_Competition and Learning: The Impact of Gamified Competitive Structures on User Engagement in the Educational Online Platforms_, with Agnieszka Kloc and Ting Li
+
+#+end_src
 
 * PUBLICATIONS
 
@@ -175,17 +190,6 @@ permalink: /publications/
 #+end_src
 
 #+begin_src markdown :tangle _includes/publications.markdown
-
-## Work in Progress
-
-_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _(minor revision at MSOM)_
-
-_Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
-
-_Could Reward Uncertainty Encourage Social Referral? Evidence from Large-scale Field Experiments_, with Andy Tao Li and Ting Li
-
-_Competition and Learning: The Impact of Gamified Competitive Structures on User Engagement in the Educational Online Platforms_, with Agnieszka Kloc and Ting Li
-
 
 ## Journal Publications
 

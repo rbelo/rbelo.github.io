@@ -3,4 +3,6 @@ My research is motivated by the choices individuals face upon the introduction o
 <!-- I currently pursue two streams of research. A first stream of research focuses on Pricing, Advertising and Peer Influence in Digital Platforms. I am interested in understanding how platforms and products shape individual behavior, and how individuals influence each other in online settings. I have done work on the role of peer influence in large social networks in diverse contexts, applying both novel identification methods for observational data, and large scale randomized experiments. I have also done work on online member-get-member referral policies and on advertising. -->
 
 
-{% include publications.markdown %}
+{% include workinprogress.markdown %}
+
+<!-- {% include publications.markdown %} -->
