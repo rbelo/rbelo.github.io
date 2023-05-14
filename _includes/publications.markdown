@@ -3,7 +3,9 @@
 
 <!-- ### Digital Platforms and Media -->
 
-_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao, _MIS Quarterly (accepted)_
+_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_, with Yashar Ghiassi, Mohammed Reza and Derek Bunn _Manufacturing and Service Operations Management (accepted)_.
+
+_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao, _MIS Quarterly (accepted)_.
 
 
 [_Incentive Misalignments in Programmatic Advertising: Evidence from a Randomized  Field Experiment_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4438), with Thomas Frick and Rahul Telang, _Management Science_, 2023.
