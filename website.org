@@ -40,7 +40,7 @@ main:
    url: /projects/
 
  - title: "CV"
-   url: /cv-rodrigo-belo.pdf
+   url: /cv-rodrigo-belo-short.pdf
 
 #+end_src
 
@@ -167,9 +167,9 @@ My research is motivated by the choices individuals face upon the introduction o
 
 ## Work in Progress
 
-_Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
-
 _Could Reward Uncertainty Encourage Social Referral? Evidence from Large-scale Field Experiments_, with Andy Tao Li and Ting Li
+
+_Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
 
 _Competition and Learning: The Impact of Gamified Competitive Structures on User Engagement in the Educational Online Platforms_, with Agnieszka Kloc and Ting Li
 
@@ -194,7 +194,7 @@ permalink: /publications/
 
 <!-- ### Digital Platforms and Media -->
 
-_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao, _MIS Quarterly (accepted)_.
+_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao, _MIS Quarterly (accepted)_. [_(preprint)_](https://osf.io/preprints/socarxiv/b8tsg/)
 
 [_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_](https://pubsonline.informs.org/doi/10.1287/msom.2021.0555), with Yashar Ghiassi, Mohammed Reza and Derek Bunn, _Manufacturing and Service Operations Management_, 2023.
 

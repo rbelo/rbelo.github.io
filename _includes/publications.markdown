@@ -3,7 +3,7 @@
 
 <!-- ### Digital Platforms and Media -->
 
-_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao, _MIS Quarterly (accepted)_.
+_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_, with Zike Cao, _MIS Quarterly (accepted)_. [_(preprint)_](https://osf.io/preprints/socarxiv/b8tsg/)
 
 [_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_](https://pubsonline.informs.org/doi/10.1287/msom.2021.0555), with Yashar Ghiassi, Mohammed Reza and Derek Bunn, _Manufacturing and Service Operations Management_, 2023.
 
