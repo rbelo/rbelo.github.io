@@ -62,6 +62,7 @@ To do so, we just need to create an empty file.
 
 <!-- insert favicons. use https://realfavicongenerator.net/ -->
 
+<a rel="me" href="https://mastodon.social/@rbelo">Mastodon</a>
 
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
@@ -105,8 +106,6 @@ I am a Professor of Information Systems at [Nova School of Business and Economic
 
 My research focuses on digital technologies, on their effects on individual behavior and interactions (e.g., in media consumption, online dating, and technology-mediated learning), and on the implications for firms, their industries, and society at large.
 
-<!-- I have a PhD in Technological Change and Entrepreneurship from Carnegie Mellon University, an MSc in Engineering and Public Policy from Carnegie Mellon University, and a BSc in Computer Science and Engineering from Instituto Superior Técnico, University of Lisbon. Before joining the academia I worked as a software engineer and analyst in the transportation and government sectors. -->
-
 
 # Research
 
@@ -115,6 +114,7 @@ My research focuses on digital technologies, on their effects on individual beha
 {% include publications.markdown %}
 
 #+end_src
+
 
 * ABOUT
 
@@ -135,7 +135,6 @@ Rodrigo's research focuses on how digital technologies mediate interactions amon
  - 2011 - MSc - Carnegie Mellon University <br> *Engineering and Public Policy*
  - 2002 - BSc - University of Lisbon <br> *Computer Science and Engineering*
 
-<!-- Rodrigo holds a PhD in Technological Change and Entrepreneurship from Carnegie Mellon University, an MSc in Engineering and Public Policy from Carnegie Mellon University, and a BSc in Computer Science and Engineering from Instituto Superior Técnico, University of Lisbon. Before joining the academia Rodrigo worked as a software engineer and analyst in the transportation and government sectors. -->
 
 #+end_src
 
@@ -156,9 +155,6 @@ permalink: /research/
 
 My research is motivated by the choices individuals face upon the introduction of new technologies and products and by the aggregate dynamics accruing from these disruptions. I am interested in the digitization process and in how its outcomes are shaping the ways individuals interact with technology and with each other. I am equally interested in the methods that aim at identifying causal effects, namely in randomized experiments. In particular, I am interested randomized experiments in networked environments, in which interactions among treatment units create additional challenges. I am also interested in the combination of randomized experiments with machine learning methods to identify heterogeneous treatment effects and to achieve optimal treatment assignment to each treatment unit.
 
-<!-- I currently pursue two streams of research. A first stream of research focuses on Pricing, Advertising and Peer Influence in Digital Platforms. I am interested in understanding how platforms and products shape individual behavior, and how individuals influence each other in online settings. I have done work on the role of peer influence in large social networks in diverse contexts, applying both novel identification methods for observational data, and large scale randomized experiments. I have also done work on online member-get-member referral policies and on advertising. -->
-
-
 {% include workinprogress.markdown %}
 
 #+end_src
@@ -167,18 +163,21 @@ My research is motivated by the choices individuals face upon the introduction o
 
 ## Work in Progress
 
-_Generative AI and Student Performance: Evidence from a Large-Scale Intervention in a Digital Business Course_, with Dimitrios Tsekouras
+,**Generative AI and Student Performance: Evidence from a Large-Scale Intervention in a Digital Business Course**, with Dimitrios Tsekouras
 
-The emergence of generative artificial intelligence (AI), especially Large Language Models (LLM) such as ChatGPT, has created the potential for disrupting established practices in multiple areas such as the labor market, healthcare, and education \cite{eloundou2023gpts}. In the context of education, the use of AI tools based on LLMs can transform the way students learn, with, e.g., the implementation of virtual tutors helping students understand new concepts or helping students draft essays and improve their writing skills. In this paper, we examine the impact of ChatGPT on student performance in the context of a large course on Digital Business at a European business school. We use data from two editions of the course. The first edition of the course was taught before the introduction of ChatGPT in November 2022, while for the second edition, the use of ChatGPT was made mandatory for the first essay and optional for the second. We assess the impact of the use of ChatGPT by comparing essay grades across the two cohorts of students. We find that the use of ChatGPT has a negative impact in all rubric attributes for the first essay, except for writing quality. For the second essay, the use of ChatGPT has a positive impact on writing quality but no impact on the other rubric attributes. We also find that weaker students benefit the most from the use of ChatGPT w.r.t. total grade, evidence, and relevance.
+ The emergence of generative artificial intelligence (AI), especially Large Language Models (LLM) such as ChatGPT, has created the potential for disrupting established practices in multiple areas such as the labor market, healthcare, and education. In the context of education, the use of AI tools based on LLMs can transform the way students learn, with, e.g., the implementation of virtual tutors helping students understand new concepts or helping students draft essays and improve their writing skills. In this paper, we examine the impact of ChatGPT on student performance in the context of a large course on Digital Business at a European business school. We use data from two editions of the course. The first edition of the course was taught before the introduction of ChatGPT in November 2022, while for the second edition, the use of ChatGPT was made mandatory for the first essay and optional for the second. We assess the impact of the use of ChatGPT by comparing essay grades across the two cohorts of students. We find that the use of ChatGPT has a negative impact in all rubric attributes for the first essay, except for writing quality. For the second essay, the use of ChatGPT has a positive impact on writing quality but no impact on the other rubric attributes. We also find that weaker students benefit the most from the use of ChatGPT w.r.t. total grade, evidence, and relevance.
+
+,**Competition and Learning: The Impact of Gamified Competitive Structures on User Engagement in the Educational Online Platforms**, with Agnieszka Kloc and Ting Li
 
 
-_Competition and Learning: The Impact of Gamified Competitive Structures on User Engagement in the Educational Online Platforms_, with Agnieszka Kloc and Ting Li
-
-_Could Reward Uncertainty Encourage Social Referral? Evidence from Large-scale Field Experiments_, with Andy Tao Li and Ting Li
-
-_Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment_, with Charles Wan and Leid Zejnilovic
+,**Could Reward Uncertainty Encourage Social Referral? Evidence from Large-scale Field Experiments**, with Andy Tao Li and Ting Li
 
 #+end_src
+
+#+begin_src markdown
+<!-- ,**Algorithmic Explanations and Human Decision-Making: A Randomized Field Experiment**, with Charles Wan and Leid Zejnilovic -->
+#+end_src
+
 
 * PUBLICATIONS
 
