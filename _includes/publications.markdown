@@ -5,9 +5,9 @@
 
 [_Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing_](https://misq.umn.edu/effects-of-explicit-sponsorship-disclosure-on-user-engagement-in-social-media-influencer-marketing.html), with Zike Cao, _MIS Quarterly_, 2024. [_(preprint)_](https://osf.io/preprints/socarxiv/b8tsg/)
 
-[_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_](https://pubsonline.informs.org/doi/10.1287/msom.2021.0555), with Yashar Ghiassi, Mohammed Reza and Derek Bunn, _Manufacturing and Service Operations Management_, 2023.
-
 [_Incentive Misalignments in Programmatic Advertising: Evidence from a Randomized  Field Experiment_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4438), with Thomas Frick and Rahul Telang, _Management Science_, 2023.
+
+[_Optimal Electricity Imbalance Pricing for the Emerging Penetration of Renewable and Low-Cost Technologies_](https://pubsonline.informs.org/doi/10.1287/msom.2021.0555), with Yashar Ghiassi, Mohammed Reza and Derek Bunn, _Manufacturing and Service Operations Management_, 2023.
 
 [_Social Referral Programs for Freemium Platforms_](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4301), with Ting Li, _Management Science_, 2022.
 
