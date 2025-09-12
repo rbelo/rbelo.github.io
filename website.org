@@ -94,6 +94,7 @@ To do so, we just need to create an empty file.
 ** Rybbit Analytics
 
 #+begin_src html :tangle _includes/head/custom.html
+<!-- Rybbit Analytics -->
 <script
     src="https://app.rybbit.io/api/script.js"
     data-site-id="177"
@@ -174,8 +175,6 @@ My research is motivated by the choices individuals face upon the introduction o
 
 ## Work in Progress
 
-[*Can Reward Uncertainty Encourage Social Referrals? Evidence from a Large-scale Field Experiment*](/assets/pdf/reward-uncertainty.pdf) (*R&R at Management Science*), with Andy Tao Li and Ting Li
-
 [*Climbing the Ladder or Falling Behind: The Role of Leaderboard Composition in User Engagement*](assets/pdf/leaderboards.pdf) (*R&R at Information Systems Research*), with Agnieszka Kloc and Ting Li
 
 *Generative AI and Student Performance: Evidence from a Large-Scale Intervention in a Digital Business Course* (*In preparation for journal submission*), with Dimitrios Tsekouras
@@ -208,6 +207,8 @@ permalink: /publications/
 
 
 <!-- ### Digital Platforms and Media -->
+
+[*Can Reward Uncertainty Encourage Social Referrals? Evidence from a Large-scale Field Experiment*](/assets/pdf/reward-uncertainty.pdf) (*Accepted at Management Science*), with Andy Tao Li and Ting Li
 
 [*Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing*](https://misq.umn.edu/effects-of-explicit-sponsorship-disclosure-on-user-engagement-in-social-media-influencer-marketing.html), with Zike Cao, _MIS Quarterly_, 2024. [*(preprint)*](https://osf.io/preprints/socarxiv/b8tsg/)
 
@@ -287,6 +288,16 @@ title: ""
 permalink: /projects/
 author_profile: true
 ---
+# Projects
+
+<ul>
+  {% for post in site.categories.research-projects %}
+    {% if post.url %}
+        <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+    {% endif %}
+  {% endfor %}
+</ul>
+
 
 # Software
 
@@ -299,6 +310,19 @@ author_profile: true
 </ul>
 #+end_src
 
+** IEFP
+#+begin_src markdown :tangle research-projects/_posts/2025-06-07-iefp.md
+---
+title: "Improving job seekers’ odds with Large Language Models: randomized controlled trials at Instituto de Emprego e Formação Profissional"
+---
+
+<img src="/assets/images/iefp-project.png" alt="IEFP Project Illustration" style="float: right; margin-left: 20px; max-width: 350px;"/>
+
+This project is a collaboration with the [Instituto de Emprego e Formação Profissional](https://www.iefp.pt/) (IEFP) to improve job seekers' outcomes by using Large Language Models (LLMs) to generate personalized job search advice. The project involves running randomized controlled trials to assess the effectiveness of LLM-generated advice compared to traditional methods.
+
+
+## Project Goals
+#+end_src
 
 ** REGCOMBS
 

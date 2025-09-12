@@ -3,6 +3,8 @@
 
 <!-- ### Digital Platforms and Media -->
 
+[*Can Reward Uncertainty Encourage Social Referrals? Evidence from a Large-scale Field Experiment*](/assets/pdf/reward-uncertainty.pdf) (*Accepted at Management Science*), with Andy Tao Li and Ting Li
+
 [*Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing*](https://misq.umn.edu/effects-of-explicit-sponsorship-disclosure-on-user-engagement-in-social-media-influencer-marketing.html), with Zike Cao, _MIS Quarterly_, 2024. [*(preprint)*](https://osf.io/preprints/socarxiv/b8tsg/)
 
 [*Incentive Misalignments in Programmatic Advertising: Evidence from a Randomized  Field Experiment*](https://pubsonline.informs.org/doi/10.1287/mnsc.2022.4438), with Thomas Frick and Rahul Telang, _Management Science_, 2023.
