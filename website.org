@@ -46,6 +46,21 @@ main:
 
 * CONFIGURATION
 
+** Remove Sidebar Opacity on Large Screens
+
+#+begin_src html :tangle _includes/head/custom.html
+<style>
+@media (min-width: 64em) {
+  .sidebar {
+    opacity: 1 !important;
+  }
+  .sidebar:hover {
+    opacity: 1 !important;
+  }
+}
+</style>
+#+end_src
+
 ** Remove Previous / Next Buttons on Posts
 
 To do so, we just need to create an empty file.
