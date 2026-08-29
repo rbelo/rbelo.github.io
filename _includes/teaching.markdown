@@ -1,6 +1,7 @@
 ## Nova SBE
 
 <!-- - Business Analytics (Executive Masters) -->
+- [Digital Strategy and Markets](/teaching/dsm/) (MSc) [2026- ]
 - AI Impact on Business (MSc & Executive MBA) [2022- ]
 - _Network Analytics (MSc) [2022-2023]_
 - _Marketing Analytics (MSc) [2021]_

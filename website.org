@@ -222,7 +222,7 @@ permalink: /publications/
 
 <!-- ### Digital Platforms and Media -->
 
-[*Can Reward Uncertainty Encourage Social Referrals? Evidence from a Large-scale Field Experiment*](/assets/pdf/reward-uncertainty.pdf), with Andy Tao Li and Ting Li, _Management Science (Accepted)_.
+[*Can Reward Uncertainty Encourage Social Referrals? Evidence from a Large-scale Field Experiment/](https://pubsonline.informs.org/doi/full/10.1287/mnsc.2024.05685), with Andy Tao Li and Ting Li, _Management Science (Forthcoming)_. [*(preprint)*](/assets/pdf/reward-uncertainty.pdf)
 
 [*Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing*](https://misq.umn.edu/effects-of-explicit-sponsorship-disclosure-on-user-engagement-in-social-media-influencer-marketing.html), with Zike Cao, _MIS Quarterly_, 2024. [*(preprint)*](https://osf.io/preprints/socarxiv/b8tsg/)
 
@@ -271,6 +271,7 @@ permalink: /teaching/
 ## Nova SBE
 
 <!-- - Business Analytics (Executive Masters) -->
+- [Digital Strategy and Markets](/teaching/dsm/) (MSc) [2026- ]
 - AI Impact on Business (MSc & Executive MBA) [2022- ]
 - _Network Analytics (MSc) [2022-2023]_
 - _Marketing Analytics (MSc) [2021]_
@@ -282,6 +283,20 @@ permalink: /teaching/
 - _Network Analytics (MSc) [2021]_
 - _Social Network Analysis (MSc) [2015]_
 
+#+end_src
+
+The simulation =.html= files and =styles.css= in =teaching/dsm/= are copied from the course repo's =simulations/= folder on deploy; only the index page below is tangled from here.
+
+#+begin_src markdown :tangle teaching/dsm/index.md :mkdirp yes
+---
+layout: single
+title: Digital Strategy and Markets
+---
+
+Interactive simulations used in the MSc course *Digital Strategy and Markets* at Nova SBE.
+
+- [The production function](production-function.html): a service desk chooses how much to spend on AI tools.
+- [Substitutes and complements](substitution-and-complementarity.html): the service desk chooses how many workers and AI capacity to contract to meet the fixed demand.
 #+end_src
 
 * PROJECTS

@@ -3,7 +3,7 @@
 
 <!-- ### Digital Platforms and Media -->
 
-[*Can Reward Uncertainty Encourage Social Referrals? Evidence from a Large-scale Field Experiment*](https://pubsonline.informs.org/doi/abs/10.1287/mnsc.2024.05685), with Andy Tao Li and Ting Li, _Management Science (Forthcoming)_.
+[*Can Reward Uncertainty Encourage Social Referrals? Evidence from a Large-scale Field Experiment/](https://pubsonline.informs.org/doi/full/10.1287/mnsc.2024.05685), with Andy Tao Li and Ting Li, _Management Science (Forthcoming)_. [*(preprint)*](/assets/pdf/reward-uncertainty.pdf)
 
 [*Effects of Explicit Sponsorship Disclosure on User Engagement in Social Media Influencer Marketing*](https://misq.umn.edu/effects-of-explicit-sponsorship-disclosure-on-user-engagement-in-social-media-influencer-marketing.html), with Zike Cao, _MIS Quarterly_, 2024. [*(preprint)*](https://osf.io/preprints/socarxiv/b8tsg/)
 
