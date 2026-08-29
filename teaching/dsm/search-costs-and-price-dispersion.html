@@ -82,13 +82,9 @@
   </div>
 
   <div class="note-block">
-    <strong>Try this.</strong>
-    First, drag the cost of checking to zero: buyers check every seller, everyone finds the lowest price, and the spread of prices paid collapses onto the minimum. Second, make comparison harder: buyers stop checking early again, and the spread and the seller margin come back. Ask who captured the gains from the comparison site now. Third, set the cost of checking high and add sellers: going from 20 to 50 barely helps the buyer, because what protects buyers is cheap checking. Making comparison hard again is the sellers' answer to cheap search, and the course returns to it as a strategy question.
+    The cost of one more check drives this market. When checking is cheap, buyers compare many sellers, almost everyone finds a low price, and the spread of prices paid collapses. When checking is expensive, buyers stop early, high prices survive, and seller margins grow. Sellers understand this, which is why making comparison harder brings the spread back even after search itself has become free.
   </div>
 
-  <footer class="sim-footer">
-    For the technically curious: prices are i.i.d. Uniform[60, 140] with seller marginal cost 60; the obfuscation slider adds to the search cost, c<sub>eff</sub> = c + φ. The buyer's reservation price solves E[max(r − p, 0)] = c<sub>eff</sub>, so r = 60 + √(160 · c<sub>eff</sub>), capped at 140. Each of 2,000 simulated buyers gets the first quote free, pays c<sub>eff</sub> per additional quote, stops at the first quote at or below r, and recalls the best quote if all sellers are exhausted. Fixed random seed, so identical settings reproduce identical numbers.
-  </footer>
 
   <script>
     // Price distribution: p ~ Uniform[A, B].
