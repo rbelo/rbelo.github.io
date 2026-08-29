@@ -132,20 +132,36 @@
       return Math.min(B, A + Math.sqrt(2 * RANGE * cEff));
     }
 
-    // Simulate SIM consumers: each faces n sellers with i.i.d. Uniform[A, B]
-    // prices, searches in sequence (first quote free, c_eff per extra quote),
-    // stops at the first quote ≤ r, and recalls the best quote if all n fail.
+    // One market: n sellers post prices drawn once from Uniform[A, B],
+    // seeded by n so the same seller count always gives the same market.
+    function drawMarket(n) {
+      const rng = mulberry32(7000 + n);
+      const prices = new Array(n);
+      for (let k = 0; k < n; k++) prices[k] = A + RANGE * rng();
+      return prices;
+    }
+
+    // Simulate SIM consumers in one shared market: each visits the same n
+    // sellers in their own random order (first quote free, c_eff per extra
+    // quote), stops at the first quote ≤ r, and recalls the best quote if
+    // all n fail.
     function simulate(c, obf, n) {
       const cEff = c + obf;
       const r = reservation(cEff);
+      const market = drawMarket(n);
       const rng = mulberry32(42);
       const bins = new Array(NBINS).fill(0);
       let sumPaid = 0, sumPaid2 = 0, sumQuotes = 0, sumSpend = 0;
 
+      const order = new Array(n);
       for (let i = 0; i < SIM; i++) {
+        for (let k = 0; k < n; k++) order[k] = k;
         let best = Infinity, quotes = 0;
         for (let k = 0; k < n; k++) {
-          const p = A + RANGE * rng();
+          // Fisher–Yates step: the next seller is uniform over those unvisited
+          const j = k + Math.floor(rng() * (n - k));
+          const tmp = order[k]; order[k] = order[j]; order[j] = tmp;
+          const p = market[order[k]];
           quotes++;
           if (p < best) best = p;
           if (p <= r) break;
@@ -163,7 +179,7 @@
       const meanPaid = sumPaid / SIM;
       const sdPaid = Math.sqrt(Math.max(0, sumPaid2 / SIM - meanPaid * meanPaid));
       return {
-        cEff, r,
+        cEff, r, market,
         meanPaid, sdPaid,
         meanQuotes: sumQuotes / SIM,
         meanSpend: sumSpend / SIM,
@@ -254,11 +270,9 @@
       const flatY = yCoord(flatShare * 100);
       h += `<line x1="${xCoord(A)}" y1="${flatY}" x2="${xCoord(B)}" y2="${flatY}" stroke="#b8b8b8" stroke-width="1.6" stroke-dasharray="5 3" />`;
 
-      // One example market: N posted prices as ticks above the axis
-      // (accepted-on-sight sellers, price ≤ r, in blue; the rest grey)
-      const tickRng = mulberry32(7000 + n);
-      for (let k = 0; k < n; k++) {
-        const p = A + RANGE * tickRng();
+      // The market's n posted prices as ticks above the axis
+      // (sellers priced at or below r in blue; the rest grey)
+      for (const p of s.market) {
         const accepted = p <= s.r;
         h += `<line x1="${xCoord(p).toFixed(1)}" y1="${axisY - 9}" x2="${xCoord(p).toFixed(1)}" y2="${axisY - 1}" stroke="${accepted ? '#3f8db8' : '#b8b8b8'}" stroke-width="1.6" />`;
       }
@@ -285,13 +299,13 @@
       h += `<rect x="${lx + 10}" y="${ly + 11}" width="20" height="9" fill="${barColor}" opacity="0.85" />`;
       h += `<text x="${lx + 36}" y="${ly + 20}" font-size="11" fill="#1f2937">paid prices (2,000 consumers)</text>`;
       h += `<line x1="${lx + 10}" y1="${ly + 34}" x2="${lx + 30}" y2="${ly + 34}" stroke="#b8b8b8" stroke-width="1.6" stroke-dasharray="5 3" />`;
-      h += `<text x="${lx + 36}" y="${ly + 38}" font-size="11" fill="#6b7280">posted prices (uniform)</text>`;
+      h += `<text x="${lx + 36}" y="${ly + 38}" font-size="11" fill="#6b7280">distribution of posted prices</text>`;
       h += `<line x1="${lx + 10}" y1="${ly + 52}" x2="${lx + 30}" y2="${ly + 52}" stroke="#c44545" stroke-width="1.8" stroke-dasharray="5 3" />`;
       h += `<text x="${lx + 36}" y="${ly + 56}" font-size="11" fill="#1f2937">good-enough price</text>`;
       h += `<line x1="${lx + 10}" y1="${ly + 70}" x2="${lx + 30}" y2="${ly + 70}" stroke="#5e8c5e" stroke-width="1.8" />`;
       h += `<text x="${lx + 36}" y="${ly + 74}" font-size="11" fill="#1f2937">average paid price</text>`;
       h += `<line x1="${lx + 20}" y1="${ly + 84}" x2="${lx + 20}" y2="${ly + 92}" stroke="#b8b8b8" stroke-width="1.6" />`;
-      h += `<text x="${lx + 36}" y="${ly + 92}" font-size="11" fill="#6b7280">one market's N posted prices</text>`;
+      h += `<text x="${lx + 36}" y="${ly + 92}" font-size="11" fill="#6b7280">the market's posted prices</text>`;
 
       svg.innerHTML = h;
 
