@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Substitutes and complements — can one input replace the other?</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="sim-header">
+    <div class="course">Digital Strategy and Markets · Lecture 1</div>
+    <h1>Substitutes and complements: <em>can one input replace the other?</em></h1>
+    <p class="lead">
+      A service desk resolves tickets with two inputs: worker hours and AI capacity.
+      The blue curve joins every input mix that resolves the day's tickets.
+      Its shape answers one question: can you buy your way out of a missing input?
+      One slider bends the shape, from inputs that must be used together to inputs that replace each other.
+      The other slider changes the price of AI relative to a worker hour. Watch the cheapest mix respond.
+    </p>
+  </header>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="ctrl">
+        <label>How replaceable are the two inputs? <span class="val" id="sigmaVal">1.00</span></label>
+        <input type="range" id="sigma" min="0" max="5.0" step="0.05" value="1.0">
+        <div class="note">0 = they must be used together (L-shape). 1 = they trade off smoothly. High = one can stand in for the other (straight line).</div>
+      </div>
+      <div class="ctrl">
+        <label>Price of AI relative to a worker hour: <span class="val" id="priceVal">1.00</span></label>
+        <input type="range" id="price" min="0.25" max="4.0" step="0.05" value="1.0">
+        <div class="note">Baseline = 1.00. Lower it to make AI cheaper, the move that Moore's law made for forty years.</div>
+      </div>
+    </div>
+
+    <div class="presets">
+      <button class="preset" data-sigma="0" data-price="1.0">Must be used together</button>
+      <button class="preset" data-sigma="0.3" data-price="1.0">Hard to replace</button>
+      <button class="preset" data-sigma="1.0" data-price="1.0">Smooth trade-off</button>
+      <button class="preset" data-sigma="3.0" data-price="1.0">Easy to replace</button>
+      <button class="preset" data-sigma="1.0" data-price="0.5">Price shock: AI gets 50% cheaper</button>
+    </div>
+  </div>
+
+  <svg id="chart" class="chart" width="820" height="500" viewBox="0 0 820 500"></svg>
+
+  <div class="outputs">
+    <div class="out">
+      <div class="label">Cheapest mix: AI capacity</div>
+      <div class="num" id="itStar">10.00</div>
+      <div class="delta" id="itDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Cheapest mix: worker hours</div>
+      <div class="num" id="ocStar">10.00</div>
+      <div class="delta" id="ocDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Total cost per day</div>
+      <div class="num" id="costStar">20.00</div>
+      <div class="delta" id="costDelta">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="note-block">
+    <strong>What to notice.</strong>
+    Drag the first slider low: the curve bends into an L. Now cut the price of AI and watch the mix. It barely moves, because inputs that must be used together leave the firm nothing to reallocate. Now drag the slider high: the curve flattens toward a line, and the same price cut swings the mix hard. How strongly a firm responds to a price shock is the same thing as how replaceable its inputs are.
+    This is also the week's evidence in miniature: Brynjolfsson and Hitt found that computers and organization are hard to replace for each other, which is why buying computers without reorganizing bought so little.
+  </div>
+
+  <footer class="sim-footer">
+    For the technically curious: the engine is a CES production function Y = (α·x₁<sup>ρ</sup> + (1−α)·x₂<sup>ρ</sup>)<sup>1/ρ</sup> with α = 0.5 and target output 10; the replaceability slider is the elasticity of substitution σ. The blue curve is the isoquant, the red line the isocost through the cheapest mix, and the curve turns orange when σ leaves its baseline of 1.
+  </footer>
+
+  <script>
+    const ALPHA = 0.5;
+    const Y_TARGET = 10;
+    const BASELINE = { sigma: 1.0, price: 1.0 };
+
+    const $ = id => document.getElementById(id);
+    const sigmaSlider = $('sigma');
+    const priceSlider = $('price');
+    const sigmaVal = $('sigmaVal');
+    const priceVal = $('priceVal');
+    const svg = $('chart');
+
+    const W = 820, H = 500;
+    const M = { top: 30, right: 60, bottom: 50, left: 60 };
+    const PW = W - M.left - M.right;
+    const PH = H - M.top - M.bottom;
+    const IT_MAX = 28;
+    const OC_MAX = 28;
+
+    const xCoord = it => M.left + (it / IT_MAX) * PW;
+    const yCoord = oc => M.top + (1 - oc / OC_MAX) * PH;
+
+    const LEONTIEF_THRESHOLD = 0.05;
+    const isLeontief = sigma => sigma < LEONTIEF_THRESHOLD;
+    function rho(sigma) { return 1 - 1 / sigma; }
+
+    // Given IT, return OC such that Y(IT, OC) = Y_TARGET
+    function isoquantOC(IT, sigma) {
+      if (isLeontief(sigma)) {
+        // Leontief: Y = min(IT, OC). To produce Y_TARGET, need both ≥ Y_TARGET.
+        // The isoquant is L-shaped; for IT < Y_TARGET there is no finite OC that suffices.
+        return IT >= Y_TARGET ? Y_TARGET : Infinity;
+      }
+      if (Math.abs(sigma - 1) < 1e-3) {
+        // Cobb-Douglas: Y = IT^α · OC^(1-α) → OC = (Y / IT^α)^(1/(1-α))
+        return Math.pow(Y_TARGET / Math.pow(IT, ALPHA), 1 / (1 - ALPHA));
+      }
+      const r = rho(sigma);
+      const yr = Math.pow(Y_TARGET, r);
+      const itr = Math.pow(IT, r);
+      const num = yr - ALPHA * itr;
+      if (r > 0) {
+        if (num <= 0) return 0;
+        return Math.pow(num / (1 - ALPHA), 1 / r);
+      } else {
+        if (itr === 0 || num <= 0) return Infinity;
+        return Math.pow(num / (1 - ALPHA), 1 / r);
+      }
+    }
+
+    // Cost-minimizing IT* given σ and price ratio p_IT/p_OC
+    function optimalInputs(sigma, priceRatio) {
+      if (isLeontief(sigma)) {
+        // Perfect complements: firm must use IT = OC = Y_TARGET regardless of price.
+        return { IT: Y_TARGET, OC: Y_TARGET };
+      }
+      const ratio = Math.pow(priceRatio, sigma);  // OC/IT
+      if (Math.abs(sigma - 1) < 1e-3) {
+        const IT = Y_TARGET * Math.pow(ratio, -(1 - ALPHA));
+        const OC = ratio * IT;
+        return { IT, OC };
+      }
+      const r = rho(sigma);
+      const factor = ALPHA + (1 - ALPHA) * Math.pow(ratio, r);
+      const IT = Y_TARGET * Math.pow(factor, -1 / r);
+      const OC = ratio * IT;
+      return { IT, OC };
+    }
+
+    function pct(now, base) {
+      if (base === 0 || !isFinite(base)) return '';
+      const d = (now - base) / base * 100;
+      if (Math.abs(d) < 0.1) return '— baseline';
+      const sign = d > 0 ? '+' : '';
+      return `${sign}${d.toFixed(1)}% vs baseline`;
+    }
+    function deltaClass(now, base, lowerBetter) {
+      if (Math.abs(now - base) < 1e-3) return 'delta';
+      const better = lowerBetter ? (now < base) : (now > base);
+      return better ? 'delta up' : 'delta down';
+    }
+
+    function buildIsoquantPath(sigma) {
+      if (isLeontief(sigma)) {
+        // L-shape: down from (Y_TARGET, OC_MAX) to (Y_TARGET, Y_TARGET), then right to (IT_MAX, Y_TARGET)
+        const xY = xCoord(Y_TARGET).toFixed(1);
+        const yY = yCoord(Y_TARGET).toFixed(1);
+        const topY = yCoord(OC_MAX).toFixed(1);
+        const rightX = xCoord(IT_MAX).toFixed(1);
+        return `M ${xY},${topY} L ${xY},${yY} L ${rightX},${yY}`;
+      }
+      const NPTS = 240;
+      const pts = [];
+      for (let i = 0; i <= NPTS; i++) {
+        const it = 0.2 + (i / NPTS) * (IT_MAX - 0.2);
+        const oc = isoquantOC(it, sigma);
+        if (isFinite(oc) && oc > 0 && oc < OC_MAX * 1.5) {
+          pts.push([it, Math.min(oc, OC_MAX * 1.1)]);
+        }
+      }
+      if (pts.length === 0) return '';
+      let d = `M ${xCoord(pts[0][0]).toFixed(1)},${yCoord(pts[0][1]).toFixed(1)}`;
+      for (let i = 1; i < pts.length; i++) {
+        d += ` L ${xCoord(pts[i][0]).toFixed(1)},${yCoord(pts[i][1]).toFixed(1)}`;
+      }
+      return d;
+    }
+
+    function render() {
+      const sigma = parseFloat(sigmaSlider.value);
+      const price = parseFloat(priceSlider.value);
+      sigmaVal.textContent = sigma.toFixed(2);
+      priceVal.textContent = price.toFixed(2);
+
+      const opt = optimalInputs(sigma, price);
+      const optBase = optimalInputs(BASELINE.sigma, BASELINE.price);
+      const cost = price * opt.IT + 1.0 * opt.OC;
+      const costBase = BASELINE.price * optBase.IT + 1.0 * optBase.OC;
+
+      $('itStar').textContent = opt.IT.toFixed(2);
+      $('ocStar').textContent = opt.OC.toFixed(2);
+      $('costStar').textContent = cost.toFixed(2);
+      const itD = $('itDelta'); itD.textContent = pct(opt.IT, optBase.IT); itD.className = deltaClass(opt.IT, optBase.IT);
+      const ocD = $('ocDelta'); ocD.textContent = pct(opt.OC, optBase.OC); ocD.className = deltaClass(opt.OC, optBase.OC);
+      const cD = $('costDelta'); cD.textContent = pct(cost, costBase); cD.className = deltaClass(cost, costBase, true);
+
+      const sigmaShocked = Math.abs(sigma - BASELINE.sigma) > 1e-3;
+      const priceShocked = Math.abs(price - BASELINE.price) > 1e-3;
+
+      let h = '';
+      // Gridlines
+      for (let i = 1; i <= 7; i++) {
+        h += `<line x1="${M.left + (i / 7) * PW}" y1="${M.top}" x2="${M.left + (i / 7) * PW}" y2="${M.top + PH}" stroke="#e5e7eb" />`;
+        h += `<line x1="${M.left}" y1="${M.top + (i / 7) * PH}" x2="${M.left + PW}" y2="${M.top + (i / 7) * PH}" stroke="#e5e7eb" />`;
+      }
+      // Axes
+      h += `<line x1="${M.left}" y1="${M.top + PH}" x2="${M.left + PW}" y2="${M.top + PH}" stroke="#6b7280" />`;
+      h += `<line x1="${M.left}" y1="${M.top}" x2="${M.left}" y2="${M.top + PH}" stroke="#6b7280" />`;
+      // Ticks
+      for (let i = 0; i <= 7; i++) {
+        const tx = M.left + (i / 7) * PW;
+        h += `<text x="${tx}" y="${M.top + PH + 18}" text-anchor="middle" font-size="11" fill="#6b7280">${((i / 7) * IT_MAX).toFixed(0)}</text>`;
+        const ty = M.top + (1 - i / 7) * PH;
+        h += `<text x="${M.left - 8}" y="${ty + 4}" text-anchor="end" font-size="11" fill="#6b7280">${((i / 7) * OC_MAX).toFixed(0)}</text>`;
+      }
+      // Axis labels
+      h += `<text x="${M.left + PW / 2}" y="${M.top + PH + 38}" text-anchor="middle" font-size="13" fill="#1f2937">AI capacity</text>`;
+      h += `<text x="${M.left - 42}" y="${M.top + PH / 2}" text-anchor="middle" font-size="13" fill="#1f2937" transform="rotate(-90 ${M.left - 42} ${M.top + PH / 2})">worker hours</text>`;
+
+      // Baseline isoquant (dashed grey)
+      const basePath = buildIsoquantPath(BASELINE.sigma);
+      if (basePath) {
+        h += `<path d="${basePath}" stroke="#b8b8b8" stroke-width="1.4" fill="none" stroke-dasharray="4 3" />`;
+      }
+      // Current isoquant
+      const curPath = buildIsoquantPath(sigma);
+      const isoColor = sigmaShocked ? '#d97743' : '#3f8db8';
+      if (curPath) {
+        h += `<path d="${curPath}" stroke="${isoColor}" stroke-width="2.4" fill="none" />`;
+      }
+
+      // Isocost line passes through the optimum with slope -priceRatio
+      // Total cost C = p_IT * IT + p_OC * OC, with p_OC = 1; so OC = C - price * IT
+      // Line endpoints: IT = 0 → OC = cost; OC = 0 → IT = cost / price
+      const costInt = cost;
+      const itInt = cost / price;
+      // Clip to plotting area
+      const itEnd = Math.min(itInt, IT_MAX);
+      const ocAtEnd = cost - price * itEnd;
+      h += `<line x1="${xCoord(0)}" y1="${yCoord(costInt)}" x2="${xCoord(itEnd)}" y2="${yCoord(Math.max(0, ocAtEnd))}" stroke="#c44545" stroke-width="2" />`;
+
+      // Optimum marker
+      const ox = xCoord(opt.IT);
+      const oy = yCoord(opt.OC);
+      h += `<line x1="${ox}" y1="${yCoord(0)}" x2="${ox}" y2="${oy}" stroke="#9ca3af" stroke-dasharray="3 3" stroke-width="1" />`;
+      h += `<line x1="${M.left}" y1="${oy}" x2="${ox}" y2="${oy}" stroke="#9ca3af" stroke-dasharray="3 3" stroke-width="1" />`;
+      h += `<circle cx="${ox}" cy="${oy}" r="6" fill="${isoColor}" stroke="#ffffff" stroke-width="2" />`;
+
+      // Legend
+      const lx = M.left + PW - 200;
+      const ly = M.top + 12;
+      h += `<rect x="${lx}" y="${ly}" width="190" height="92" fill="#ffffff" stroke="#d1d5db" />`;
+      h += `<line x1="${lx + 10}" y1="${ly + 18}" x2="${lx + 30}" y2="${ly + 18}" stroke="${isoColor}" stroke-width="2.4" />`;
+      h += `<text x="${lx + 36}" y="${ly + 22}" font-size="11" fill="#1f2937">same-output curve</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 36}" x2="${lx + 30}" y2="${ly + 36}" stroke="#b8b8b8" stroke-width="1.4" stroke-dasharray="4 3" />`;
+      h += `<text x="${lx + 36}" y="${ly + 40}" font-size="11" fill="#6b7280">baseline shape</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 54}" x2="${lx + 30}" y2="${ly + 54}" stroke="#c44545" stroke-width="2" />`;
+      h += `<text x="${lx + 36}" y="${ly + 58}" font-size="11" fill="#1f2937">equal-cost line</text>`;
+      h += `<circle cx="${lx + 20}" cy="${ly + 74}" r="5" fill="${isoColor}" stroke="#ffffff" stroke-width="2" />`;
+      h += `<text x="${lx + 36}" y="${ly + 78}" font-size="11" fill="#1f2937">cheapest mix</text>`;
+
+      // Regime annotation
+      let regime;
+      if (isLeontief(sigma)) regime = 'must be used together';
+      else if (sigma < 0.5) regime = 'hard to replace';
+      else if (sigma < 0.9) regime = 'somewhat hard to replace';
+      else if (sigma < 1.1) regime = 'smooth trade-off';
+      else if (sigma < 2.0) regime = 'fairly replaceable';
+      else regime = 'easy to replace';
+      h += `<text x="${M.left + 12}" y="${M.top + 22}" font-size="13" fill="${isoColor}" font-weight="600">${regime} · replaceability ${sigma.toFixed(2)}</text>`;
+
+      svg.innerHTML = h;
+
+      document.querySelectorAll('.preset').forEach(b => {
+        const sm = Math.abs(parseFloat(b.dataset.sigma) - sigma) < 1e-3;
+        const pm = Math.abs(parseFloat(b.dataset.price) - price) < 1e-3;
+        b.classList.toggle('active', sm && pm);
+      });
+    }
+
+    sigmaSlider.addEventListener('input', render);
+    priceSlider.addEventListener('input', render);
+    document.querySelectorAll('.preset').forEach(b => {
+      b.addEventListener('click', () => {
+        sigmaSlider.value = b.dataset.sigma;
+        priceSlider.value = b.dataset.price;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>

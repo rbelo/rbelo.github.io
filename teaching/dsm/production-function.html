@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Production function — along the curve, or lifting it</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="sim-header">
+    <div class="course">Digital Strategy and Markets · Lecture 1</div>
+    <h1>The production function: <em>along the curve, or lifting it</em></h1>
+    <p class="lead">
+      A service desk resolves tickets using workers, systems, and AI tools. With the workers and systems held fixed,
+      the blue curve shows how resolved tickets rise with spending on AI tools.
+      One slider changes the price of the tools, and the desk slides along its curve.
+      The other raises A, the organization term from the lecture, and the whole curve lifts.
+      Watch the desk's chosen spending, its output, and its profit respond.
+    </p>
+  </header>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Price of AI tools: <span class="val" id="priceVal">1.00</span></label>
+        <input type="range" id="price" min="0.2" max="2.0" step="0.05" value="1.0">
+        <div class="note">Baseline = 1.00. Lower it to make the tools cheaper, the move Moore's law made for forty years.</div>
+      </div>
+      <div class="ctrl">
+        <label>Organization (A): <span class="val" id="aVal">5.00</span></label>
+        <input type="range" id="a" min="1" max="10" step="0.1" value="5.0">
+        <div class="note">Baseline = 5.00. Raise it to simulate better processes and management: the leftover A from the lecture.</div>
+      </div>
+    </div>
+
+    <div class="presets">
+      <button class="preset" data-price="1.0" data-a="5.0">Baseline</button>
+      <button class="preset" data-price="0.5" data-a="5.0">AI tools halve in price</button>
+      <button class="preset" data-price="1.0" data-a="8.0">Organization improves</button>
+      <button class="preset" data-price="0.5" data-a="8.0">Both at once</button>
+    </div>
+  </div>
+
+  <svg id="chart" class="chart" width="820" height="440" viewBox="0 0 820 440"></svg>
+
+  <div class="outputs">
+    <div class="out">
+      <div class="label">Chosen spending on AI tools</div>
+      <div class="num" id="itStar">6.25</div>
+      <div class="delta" id="itDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Tickets resolved per day</div>
+      <div class="num" id="yStar">12.50</div>
+      <div class="delta" id="yDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Profit per day</div>
+      <div class="num" id="profitStar">6.25</div>
+      <div class="delta" id="profitDelta">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="note-block">
+    <strong>What to notice.</strong>
+    Cut the price of the tools and the desk slides along the same curve to more AI. That is Principle 2 from the lecture: when an input gets cheaper, the firm uses more of it, on an unchanged technology.
+    Raise A and the whole curve lifts: the desk resolves more tickets from the same inputs, which is what better organization does.
+    Both moves raise output. The first buys more of a cheaper input; the second builds organizational capital, and Brynjolfsson and Hitt found the second dominating the long-run payoff from IT.
+  </div>
+
+  <footer class="sim-footer">
+    For the technically curious: the engine is a Cobb-Douglas production function Y = A · IT<sup>0.5</sup> with the other inputs held fixed; the desk chooses spending to maximize Y − p · IT, with each resolved ticket worth 1. The organization slider is A, total factor productivity.
+  </footer>
+
+  <script>
+    const GAMMA = 0.5;
+    const BASELINE = { price: 1.0, a: 5.0 };
+
+    const $ = id => document.getElementById(id);
+    const priceSlider = $('price');
+    const aSlider = $('a');
+    const priceVal = $('priceVal');
+    const aVal = $('aVal');
+    const svg = $('chart');
+
+    const W = 820, H = 440;
+    const M = { top: 30, right: 60, bottom: 50, left: 60 };
+    const PW = W - M.left - M.right;
+    const PH = H - M.top - M.bottom;
+    const IT_MAX = 30;
+    const Y_MAX = 30;
+
+    const xCoord = it => M.left + (it / IT_MAX) * PW;
+    const yCoord = yv => M.top + (1 - yv / Y_MAX) * PH;
+
+    function optimalIT(price, a) {
+      // Y'(IT) = a * γ * IT^(γ-1) = p   →  IT* = (a*γ/p)^(1/(1-γ))
+      return Math.pow(a * GAMMA / price, 1 / (1 - GAMMA));
+    }
+    const output = (it, a) => a * Math.pow(it, GAMMA);
+
+    function pct(now, base) {
+      if (base === 0) return '';
+      const d = (now - base) / base * 100;
+      if (Math.abs(d) < 0.1) return '— baseline';
+      const sign = d > 0 ? '+' : '';
+      return `${sign}${d.toFixed(1)}% vs baseline`;
+    }
+    function deltaClass(now, base) {
+      if (Math.abs(now - base) < 1e-3) return 'delta';
+      return now > base ? 'delta up' : 'delta down';
+    }
+
+    function buildPath(a) {
+      const N = 140;
+      let d = '';
+      for (let i = 0; i <= N; i++) {
+        const it = (i / N) * IT_MAX;
+        const yv = output(it, a);
+        if (yv > Y_MAX) break;
+        d += (i === 0 ? 'M ' : ' L ') + xCoord(it).toFixed(1) + ',' + yCoord(yv).toFixed(1);
+      }
+      return d;
+    }
+
+    function render() {
+      const price = parseFloat(priceSlider.value);
+      const a = parseFloat(aSlider.value);
+      priceVal.textContent = price.toFixed(2);
+      aVal.textContent = a.toFixed(2);
+
+      const itStar = Math.min(optimalIT(price, a), IT_MAX);
+      const yStar = output(itStar, a);
+      const profitStar = yStar - price * itStar;
+
+      const itBase = optimalIT(BASELINE.price, BASELINE.a);
+      const yBase = output(itBase, BASELINE.a);
+      const profitBase = yBase - BASELINE.price * itBase;
+
+      $('itStar').textContent = itStar.toFixed(2);
+      $('yStar').textContent = yStar.toFixed(2);
+      $('profitStar').textContent = profitStar.toFixed(2);
+      const itD = $('itDelta'); itD.textContent = pct(itStar, itBase); itD.className = deltaClass(itStar, itBase);
+      const yD = $('yDelta'); yD.textContent = pct(yStar, yBase); yD.className = deltaClass(yStar, yBase);
+      const pD = $('profitDelta'); pD.textContent = pct(profitStar, profitBase); pD.className = deltaClass(profitStar, profitBase);
+
+      let h = '';
+      // Gridlines
+      for (let i = 1; i <= 5; i++) {
+        h += `<line x1="${M.left + (i / 5) * PW}" y1="${M.top}" x2="${M.left + (i / 5) * PW}" y2="${M.top + PH}" stroke="#e5e7eb" />`;
+        h += `<line x1="${M.left}" y1="${M.top + (i / 5) * PH}" x2="${M.left + PW}" y2="${M.top + (i / 5) * PH}" stroke="#e5e7eb" />`;
+      }
+      // Axes
+      h += `<line x1="${M.left}" y1="${M.top + PH}" x2="${M.left + PW}" y2="${M.top + PH}" stroke="#6b7280" />`;
+      h += `<line x1="${M.left}" y1="${M.top}" x2="${M.left}" y2="${M.top + PH}" stroke="#6b7280" />`;
+      // Ticks and tick labels
+      for (let i = 0; i <= 5; i++) {
+        const tx = M.left + (i / 5) * PW;
+        h += `<text x="${tx}" y="${M.top + PH + 18}" text-anchor="middle" font-size="11" fill="#6b7280">${((i / 5) * IT_MAX).toFixed(0)}</text>`;
+        const ty = M.top + (1 - i / 5) * PH;
+        h += `<text x="${M.left - 8}" y="${ty + 4}" text-anchor="end" font-size="11" fill="#6b7280">${((i / 5) * Y_MAX).toFixed(0)}</text>`;
+      }
+      // Axis labels
+      h += `<text x="${M.left + PW / 2}" y="${M.top + PH + 38}" text-anchor="middle" font-size="13" fill="#1f2937">spending on AI tools</text>`;
+      h += `<text x="${M.left - 42}" y="${M.top + PH / 2}" text-anchor="middle" font-size="13" fill="#1f2937" transform="rotate(-90 ${M.left - 42} ${M.top + PH / 2})">tickets resolved</text>`;
+
+      // Baseline curve (faded, dashed)
+      h += `<path d="${buildPath(BASELINE.a)}" stroke="#b8b8b8" stroke-width="1.5" fill="none" stroke-dasharray="4 3" />`;
+      // Current curve
+      const isShocked = Math.abs(a - BASELINE.a) > 1e-3;
+      h += `<path d="${buildPath(a)}" stroke="${isShocked ? '#d97743' : '#3f8db8'}" stroke-width="2.4" fill="none" />`;
+
+      // Cost line C = price * IT
+      const endIT = Math.min(IT_MAX, Y_MAX / price);
+      const endC = price * endIT;
+      h += `<line x1="${xCoord(0)}" y1="${yCoord(0)}" x2="${xCoord(endIT)}" y2="${yCoord(endC)}" stroke="#c44545" stroke-width="2" />`;
+      // Baseline cost line (if shocked)
+      const isPriceShock = Math.abs(price - BASELINE.price) > 1e-3;
+      if (isPriceShock) {
+        const ebIT = Math.min(IT_MAX, Y_MAX / BASELINE.price);
+        const ebC = BASELINE.price * ebIT;
+        h += `<line x1="${xCoord(0)}" y1="${yCoord(0)}" x2="${xCoord(ebIT)}" y2="${yCoord(ebC)}" stroke="#c44545" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.5" />`;
+      }
+
+      // Optimum marker, vertical guide, profit segment
+      const ix = xCoord(itStar);
+      const iy = yCoord(yStar);
+      const cy = yCoord(price * itStar);
+      h += `<line x1="${ix}" y1="${yCoord(0)}" x2="${ix}" y2="${iy}" stroke="#9ca3af" stroke-dasharray="3 3" stroke-width="1" />`;
+      h += `<line x1="${ix}" y1="${cy}" x2="${ix}" y2="${iy}" stroke="#5e8c5e" stroke-width="4" />`;
+      h += `<text x="${ix + 8}" y="${(iy + cy) / 2 + 4}" font-size="12" fill="#5e8c5e" font-weight="600">profit</text>`;
+      h += `<circle cx="${ix}" cy="${iy}" r="5" fill="${isShocked ? '#d97743' : '#3f8db8'}" stroke="#ffffff" stroke-width="1.5" />`;
+      h += `<circle cx="${ix}" cy="${cy}" r="4" fill="#c44545" stroke="#ffffff" stroke-width="1.5" />`;
+
+      // Legend (bottom-right)
+      const lx = M.left + PW - 200;
+      const ly = M.top + PH - 104;
+      h += `<rect x="${lx}" y="${ly}" width="190" height="92" fill="#ffffff" stroke="#d1d5db" />`;
+      h += `<line x1="${lx + 10}" y1="${ly + 18}" x2="${lx + 30}" y2="${ly + 18}" stroke="${isShocked ? '#d97743' : '#3f8db8'}" stroke-width="2.4" />`;
+      h += `<text x="${lx + 36}" y="${ly + 22}" font-size="11" fill="#1f2937">production curve</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 36}" x2="${lx + 30}" y2="${ly + 36}" stroke="#b8b8b8" stroke-width="1.5" stroke-dasharray="4 3" />`;
+      h += `<text x="${lx + 36}" y="${ly + 40}" font-size="11" fill="#6b7280">baseline curve</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 54}" x2="${lx + 30}" y2="${ly + 54}" stroke="#c44545" stroke-width="2" />`;
+      h += `<text x="${lx + 36}" y="${ly + 58}" font-size="11" fill="#1f2937">cost of the tools</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 72}" x2="${lx + 30}" y2="${ly + 72}" stroke="#5e8c5e" stroke-width="4" />`;
+      h += `<text x="${lx + 36}" y="${ly + 76}" font-size="11" fill="#1f2937">profit at optimum</text>`;
+
+      svg.innerHTML = h;
+
+      // Active preset highlight
+      document.querySelectorAll('.preset').forEach(b => {
+        const ap = Math.abs(parseFloat(b.dataset.price) - price) < 1e-3;
+        const aa = Math.abs(parseFloat(b.dataset.a) - a) < 1e-3;
+        b.classList.toggle('active', ap && aa);
+      });
+    }
+
+    priceSlider.addEventListener('input', render);
+    aSlider.addEventListener('input', render);
+    document.querySelectorAll('.preset').forEach(b => {
+      b.addEventListener('click', () => {
+        priceSlider.value = b.dataset.price;
+        aSlider.value = b.dataset.a;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>

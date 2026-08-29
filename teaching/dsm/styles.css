@@ -1,0 +1,306 @@
+/*
+ * Digital Strategy and Markets — shared simulation stylesheet.
+ *
+ * Clean academic look: single sans-serif family, monospace for numerics,
+ * a blue accent matching the Beamer slide headings (#3f8db8), conventional
+ * palette for data marks. All course simulations link to this file.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --bg:          #ffffff;
+  --bg-panel:    #f7f8fa;
+  --bg-card:    #ffffff;
+  --text:        #1f2937;
+  --text-soft:   #374151;
+  --muted:       #6b7280;
+  --border:      #e5e7eb;
+  --border-strong: #d1d5db;
+
+  /* Data palette — close to slide colors, clean and conventional */
+  --accent:    #3f8db8;   /* Nova SBE Beamer blue */
+  --cost:      #c44545;   /* red — cost / opposing force */
+  --gain:      #5e8c5e;   /* green — profit / welfare gain */
+  --shock:     #d97743;   /* orange — shocked (non-baseline) state */
+  --baseline:  #b8b8b8;   /* grey — reference baseline */
+
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.5rem 1.75rem 3rem;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────────────────── */
+
+header.sim-header {
+  padding-bottom: 1rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+header.sim-header .course {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
+}
+
+header.sim-header h1 {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 1.55rem;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  color: var(--text);
+  margin: 0 0 0.8rem;
+}
+
+header.sim-header h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+header.sim-header .lead {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--text-soft);
+  margin: 0;
+  max-width: 68ch;
+}
+
+header.sim-header .lead strong { font-weight: 500; color: var(--text); }
+header.sim-header .lead em { font-style: italic; color: var(--text); }
+
+/* ─── CONTROL PANEL ──────────────────────────────────────────────────── */
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.2rem 1.3rem;
+  margin: 1.5rem 0;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 1.75rem;
+}
+
+@media (max-width: 600px) {
+  .controls { grid-template-columns: 1fr; }
+}
+
+.ctrl label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-soft);
+  margin-bottom: 0.45rem;
+}
+
+.ctrl label em { font-style: italic; color: var(--text); }
+
+.ctrl .val {
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.92rem;
+  margin-left: 0.25rem;
+}
+
+.ctrl input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ctrl input[type=range]::-webkit-slider-runnable-track {
+  height: 3px;
+  background: var(--border-strong);
+  border-radius: 2px;
+}
+.ctrl input[type=range]::-moz-range-track {
+  height: 3px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  border: none;
+}
+
+.ctrl input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  margin-top: -6px;
+  cursor: grab;
+  box-shadow: 0 0 0 1px var(--border-strong);
+  transition: transform 0.12s ease;
+}
+.ctrl input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  cursor: grab;
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+.ctrl input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.15); }
+
+.ctrl .note {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--muted);
+  margin-top: 0.45rem;
+}
+
+/* Preset buttons */
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.preset {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding: 0.45rem 0.8rem;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.preset:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.preset.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+/* ─── CHART ──────────────────────────────────────────────────────────── */
+
+svg.chart {
+  display: block;
+  margin: 1.5rem auto 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  max-width: 100%;
+  height: auto;
+}
+
+svg.chart text {
+  font-family: var(--sans);
+  font-weight: 400;
+}
+
+/* ─── OUTPUT CARDS ───────────────────────────────────────────────────── */
+
+.outputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin: 1.2rem 0 0.8rem;
+}
+
+@media (max-width: 600px) {
+  .outputs { grid-template-columns: 1fr; }
+}
+
+.out {
+  padding: 0.9rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.out .label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+.out .label em { font-style: italic; color: var(--text); }
+
+.out .num {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 1.55rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+.out .delta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.delta.up { color: var(--gain); }
+.delta.down { color: var(--cost); }
+
+/* ─── NOTE BLOCK ─────────────────────────────────────────────────────── */
+
+.note-block {
+  margin: 1.5rem 0 1rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--bg-panel);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-soft);
+}
+.note-block strong { color: var(--text); font-weight: 500; }
+.note-block em { font-style: italic; color: var(--text); }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────── */
+
+footer.sim-footer {
+  margin-top: 2rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
