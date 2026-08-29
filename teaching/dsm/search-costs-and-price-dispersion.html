@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Search costs and price dispersion — the cost of one more price quote</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="sim-header">
+    <div class="course">Digital Strategy and Markets · Week 1</div>
+    <h1>Search costs and price dispersion: <em>the cost of one more price quote</em></h1>
+    <p class="lead">
+      Twenty shops sell the same product at different prices. A buyer checks one shop at a time,
+      each extra check costs time or money, and the buyer follows Stigler's rule:
+      keep checking while the expected saving beats the cost of one more check.
+      Lower the cost of checking and watch the spread of prices people actually pay collapse.
+      Then let sellers make comparison harder and watch the spread come back.
+    </p>
+  </header>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Cost of checking one more price: <span class="val" id="cVal">10.0</span></label>
+        <input type="range" id="c" min="0" max="20" step="0.5" value="10">
+        <div class="note">Baseline = 10, the offline world of phone calls and store visits. Search engines and comparison sites push this toward zero.</div>
+      </div>
+      <div class="ctrl">
+        <label>How hard sellers make comparison: <span class="val" id="obfVal">0.0</span></label>
+        <input type="range" id="obf" min="0" max="10" step="0.5" value="0">
+        <div class="note">Fees revealed late, versioned bundles, confusing tariffs. Every point here adds to the cost of checking one more price.</div>
+      </div>
+      <div class="ctrl">
+        <label>Number of sellers: <span class="val" id="nVal">20</span></label>
+        <input type="range" id="n" min="5" max="50" step="1" value="20">
+        <div class="note">Stigler's surprise: with costly search, adding sellers barely changes what buyers pay. Cheap search is what changes it.</div>
+      </div>
+    </div>
+
+    <div class="presets">
+      <button class="preset" data-c="10" data-obf="0" data-n="20">Offline world</button>
+      <button class="preset" data-c="1" data-obf="0" data-n="20">Comparison site</button>
+      <button class="preset" data-c="0" data-obf="0" data-n="20">Free search</button>
+      <button class="preset" data-c="0" data-obf="6" data-n="20">Sellers fight back</button>
+      <button class="preset" data-c="10" data-obf="0" data-n="50">More sellers, same friction</button>
+    </div>
+  </div>
+
+  <svg id="chart" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+
+  <div class="outputs">
+    <div class="out">
+      <div class="label">Average price paid</div>
+      <div class="num" id="paidStar">–</div>
+      <div class="delta" id="paidDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Prices checked before buying</div>
+      <div class="num" id="quotesStar">–</div>
+      <div class="delta" id="quotesDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Spread of prices paid</div>
+      <div class="num" id="sdStar">–</div>
+      <div class="delta" id="sdDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Spent on searching</div>
+      <div class="num" id="spendStar">–</div>
+      <div class="delta" id="spendDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Total cost to the buyer</div>
+      <div class="num" id="outlayStar">–</div>
+      <div class="delta" id="outlayDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Seller margin</div>
+      <div class="num" id="marginStar">–</div>
+      <div class="delta" id="marginDelta">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="note-block">
+    <strong>Try this.</strong>
+    First, drag the cost of checking to zero: buyers check every seller, everyone finds the lowest price, and the spread of prices paid collapses onto the minimum. Second, make comparison harder: buyers stop checking early again, and the spread and the seller margin come back. Ask who captured the gains from the comparison site now. Third, set the cost of checking high and add sellers: going from 20 to 50 barely helps the buyer, because what protects buyers is cheap checking. Making comparison hard again is the sellers' answer to cheap search, and the course returns to it as a strategy question.
+  </div>
+
+  <footer class="sim-footer">
+    For the technically curious: prices are i.i.d. Uniform[60, 140] with seller marginal cost 60; the obfuscation slider adds to the search cost, c<sub>eff</sub> = c + φ. The buyer's reservation price solves E[max(r − p, 0)] = c<sub>eff</sub>, so r = 60 + √(160 · c<sub>eff</sub>), capped at 140. Each of 2,000 simulated buyers gets the first quote free, pays c<sub>eff</sub> per additional quote, stops at the first quote at or below r, and recalls the best quote if all sellers are exhausted. Fixed random seed, so identical settings reproduce identical numbers.
+  </footer>
+
+  <script>
+    // Price distribution: p ~ Uniform[A, B].
+    const A = 60, B = 140, RANGE = B - A;   // RANGE = 80
+    const COST = 60;                        // seller marginal cost (lower support)
+    const SIM = 2000;                       // simulated consumers per parameter change
+    const BASELINE = { c: 10, obf: 0, n: 20 };
+
+    const $ = id => document.getElementById(id);
+    const cSlider = $('c');
+    const obfSlider = $('obf');
+    const nSlider = $('n');
+    const svg = $('chart');
+
+    const W = 820, H = 460;
+    const M = { top: 30, right: 60, bottom: 50, left: 60 };
+    const PW = W - M.left - M.right;
+    const PH = H - M.top - M.bottom;
+    const X_MIN = 55, X_MAX = 145;          // price axis, padded around [60, 140]
+    const BIN_W = 2;                        // histogram bin width (price units)
+    const NBINS = RANGE / BIN_W;            // 40 bins covering [60, 140]
+
+    const xCoord = p => M.left + (p - X_MIN) / (X_MAX - X_MIN) * PW;
+
+    // Deterministic RNG (mulberry32) so the Monte Carlo is reproducible:
+    // identical slider settings always give identical readouts.
+    function mulberry32(seed) {
+      return function () {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    // Reservation price (Stigler 1961, sequential search with recall).
+    // The consumer keeps searching while the expected gain of one more draw
+    // exceeds its cost: E[max(r − p, 0)] = c_eff.
+    // For p ~ Uniform[A, B]:  E[max(r − p, 0)] = ∫_A^r (r − p)/(B − A) dp
+    //                                          = (r − A)² / (2 (B − A)).
+    // Setting this equal to c_eff:  (r − 60)² / (2 · 80) = c_eff
+    //   →  r = A + sqrt(2 (B − A) c_eff) = 60 + sqrt(160 · c_eff), capped at B.
+    function reservation(cEff) {
+      if (cEff <= 0) return A;
+      return Math.min(B, A + Math.sqrt(2 * RANGE * cEff));
+    }
+
+    // Simulate SIM consumers: each faces n sellers with i.i.d. Uniform[A, B]
+    // prices, searches in sequence (first quote free, c_eff per extra quote),
+    // stops at the first quote ≤ r, and recalls the best quote if all n fail.
+    function simulate(c, obf, n) {
+      const cEff = c + obf;
+      const r = reservation(cEff);
+      const rng = mulberry32(42);
+      const bins = new Array(NBINS).fill(0);
+      let sumPaid = 0, sumPaid2 = 0, sumQuotes = 0, sumSpend = 0;
+
+      for (let i = 0; i < SIM; i++) {
+        let best = Infinity, quotes = 0;
+        for (let k = 0; k < n; k++) {
+          const p = A + RANGE * rng();
+          quotes++;
+          if (p < best) best = p;
+          if (p <= r) break;
+        }
+        // If stopped early the accepted quote is also the running minimum
+        // (all earlier quotes exceeded r ≥ p), so paid = best either way.
+        const paid = best;
+        const spend = cEff * (quotes - 1);
+        sumPaid += paid; sumPaid2 += paid * paid;
+        sumQuotes += quotes; sumSpend += spend;
+        const bi = Math.min(NBINS - 1, Math.max(0, Math.floor((paid - A) / BIN_W)));
+        bins[bi]++;
+      }
+
+      const meanPaid = sumPaid / SIM;
+      const sdPaid = Math.sqrt(Math.max(0, sumPaid2 / SIM - meanPaid * meanPaid));
+      return {
+        cEff, r,
+        meanPaid, sdPaid,
+        meanQuotes: sumQuotes / SIM,
+        meanSpend: sumSpend / SIM,
+        shares: bins.map(b => b / SIM)
+      };
+    }
+
+    const BASE = simulate(BASELINE.c, BASELINE.obf, BASELINE.n);
+
+    function pct(now, base) {
+      if (base === 0 || !isFinite(base)) return '';
+      const d = (now - base) / base * 100;
+      if (Math.abs(d) < 0.1) return '— baseline';
+      const sign = d > 0 ? '+' : '';
+      return `${sign}${d.toFixed(1)}% vs baseline`;
+    }
+    function deltaClass(now, base, lowerBetter) {
+      if (Math.abs(now - base) < 1e-3) return 'delta';
+      const better = lowerBetter ? (now < base) : (now > base);
+      return better ? 'delta up' : 'delta down';
+    }
+    function setCard(numId, deltaId, value, base, lowerBetter, neutral) {
+      $(numId).textContent = value.toFixed(2);
+      const d = $(deltaId);
+      d.textContent = pct(value, base);
+      d.className = neutral ? 'delta' : deltaClass(value, base, lowerBetter);
+    }
+
+    function render() {
+      const c = parseFloat(cSlider.value);
+      const obf = parseFloat(obfSlider.value);
+      const n = parseInt(nSlider.value, 10);
+      $('cVal').textContent = c.toFixed(1);
+      $('obfVal').textContent = obf.toFixed(1);
+      $('nVal').textContent = n;
+
+      const s = simulate(c, obf, n);
+
+      setCard('paidStar', 'paidDelta', s.meanPaid, BASE.meanPaid, true);
+      setCard('quotesStar', 'quotesDelta', s.meanQuotes, BASE.meanQuotes, false, true);
+      setCard('sdStar', 'sdDelta', s.sdPaid, BASE.sdPaid, true);
+      setCard('spendStar', 'spendDelta', s.meanSpend, BASE.meanSpend, true);
+      setCard('outlayStar', 'outlayDelta', s.meanPaid + s.meanSpend, BASE.meanPaid + BASE.meanSpend, true);
+      setCard('marginStar', 'marginDelta', s.meanPaid - COST, BASE.meanPaid - COST, true);
+
+      // ── Chart ──
+      const flatShare = BIN_W / RANGE;                 // 2.5% per bin if paid = posted
+      const maxShare = Math.max(flatShare, ...s.shares);
+      const yMaxPct = Math.max(5, Math.ceil(maxShare * 100 * 1.15 / 5) * 5);
+      const yCoord = sharePct => M.top + (1 - sharePct / yMaxPct) * PH;
+      const axisY = M.top + PH;
+      const obfShocked = obf > 0;
+      const barColor = obfShocked ? '#d97743' : '#3f8db8';
+
+      let h = '';
+      // Gridlines
+      for (let p = A; p <= B; p += 10) {
+        h += `<line x1="${xCoord(p)}" y1="${M.top}" x2="${xCoord(p)}" y2="${axisY}" stroke="#e5e7eb" />`;
+      }
+      for (let i = 1; i <= 5; i++) {
+        h += `<line x1="${M.left}" y1="${M.top + (i / 5) * PH}" x2="${M.left + PW}" y2="${M.top + (i / 5) * PH}" stroke="#e5e7eb" />`;
+      }
+      // Axes
+      h += `<line x1="${M.left}" y1="${axisY}" x2="${M.left + PW}" y2="${axisY}" stroke="#6b7280" />`;
+      h += `<line x1="${M.left}" y1="${M.top}" x2="${M.left}" y2="${axisY}" stroke="#6b7280" />`;
+      // Ticks and tick labels
+      for (let p = A; p <= B; p += 10) {
+        h += `<text x="${xCoord(p)}" y="${axisY + 18}" text-anchor="middle" font-size="11" fill="#6b7280">${p}</text>`;
+      }
+      for (let i = 0; i <= 5; i++) {
+        const pctVal = (i / 5) * yMaxPct;
+        h += `<text x="${M.left - 8}" y="${yCoord(pctVal) + 4}" text-anchor="end" font-size="11" fill="#6b7280">${pctVal.toFixed(0)}%</text>`;
+      }
+      // Axis labels
+      h += `<text x="${M.left + PW / 2}" y="${axisY + 38}" text-anchor="middle" font-size="13" fill="#1f2937">price</text>`;
+      h += `<text x="${M.left - 42}" y="${M.top + PH / 2}" text-anchor="middle" font-size="13" fill="#1f2937" transform="rotate(-90 ${M.left - 42} ${M.top + PH / 2})">share of consumers</text>`;
+
+      // Histogram of paid prices
+      const barW = (BIN_W / (X_MAX - X_MIN)) * PW - 1;
+      for (let i = 0; i < NBINS; i++) {
+        if (s.shares[i] === 0) continue;
+        const x = xCoord(A + i * BIN_W) + 0.5;
+        const y = yCoord(s.shares[i] * 100);
+        h += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${(axisY - y).toFixed(1)}" fill="${barColor}" opacity="0.85" />`;
+      }
+
+      // Posted-price distribution (uniform → flat at 2.5% per bin)
+      const flatY = yCoord(flatShare * 100);
+      h += `<line x1="${xCoord(A)}" y1="${flatY}" x2="${xCoord(B)}" y2="${flatY}" stroke="#b8b8b8" stroke-width="1.6" stroke-dasharray="5 3" />`;
+
+      // One example market: N posted prices as ticks above the axis
+      // (accepted-on-sight sellers, price ≤ r, in blue; the rest grey)
+      const tickRng = mulberry32(7000 + n);
+      for (let k = 0; k < n; k++) {
+        const p = A + RANGE * tickRng();
+        const accepted = p <= s.r;
+        h += `<line x1="${xCoord(p).toFixed(1)}" y1="${axisY - 9}" x2="${xCoord(p).toFixed(1)}" y2="${axisY - 1}" stroke="${accepted ? '#3f8db8' : '#b8b8b8'}" stroke-width="1.6" />`;
+      }
+
+      // Reservation price r
+      const rx = xCoord(s.r);
+      h += `<line x1="${rx}" y1="${M.top}" x2="${rx}" y2="${axisY}" stroke="#c44545" stroke-width="1.8" stroke-dasharray="5 3" />`;
+
+      // Average paid price
+      const mx = xCoord(s.meanPaid);
+      h += `<line x1="${mx}" y1="${M.top}" x2="${mx}" y2="${axisY}" stroke="#5e8c5e" stroke-width="1.8" />`;
+
+      // Regime annotation (top-left)
+      let regime;
+      if (s.cEff <= 0) regime = 'samples all sellers, pays the minimum';
+      else if (s.r >= B) regime = 'takes the first quote';
+      else regime = 'stops at the first good-enough price';
+      h += `<text x="${M.left + 12}" y="${M.top + 18}" font-size="13" fill="${barColor}" font-weight="600">cost of one more check ${s.cEff.toFixed(1)} · ${regime}</text>`;
+
+      // Legend (drawn last so its white box masks lines passing beneath it)
+      const lx = M.left + PW - 236;
+      const ly = M.top + 30;
+      h += `<rect x="${lx}" y="${ly}" width="226" height="106" fill="#ffffff" stroke="#d1d5db" />`;
+      h += `<rect x="${lx + 10}" y="${ly + 11}" width="20" height="9" fill="${barColor}" opacity="0.85" />`;
+      h += `<text x="${lx + 36}" y="${ly + 20}" font-size="11" fill="#1f2937">paid prices (2,000 consumers)</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 34}" x2="${lx + 30}" y2="${ly + 34}" stroke="#b8b8b8" stroke-width="1.6" stroke-dasharray="5 3" />`;
+      h += `<text x="${lx + 36}" y="${ly + 38}" font-size="11" fill="#6b7280">posted prices (uniform)</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 52}" x2="${lx + 30}" y2="${ly + 52}" stroke="#c44545" stroke-width="1.8" stroke-dasharray="5 3" />`;
+      h += `<text x="${lx + 36}" y="${ly + 56}" font-size="11" fill="#1f2937">good-enough price</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 70}" x2="${lx + 30}" y2="${ly + 70}" stroke="#5e8c5e" stroke-width="1.8" />`;
+      h += `<text x="${lx + 36}" y="${ly + 74}" font-size="11" fill="#1f2937">average paid price</text>`;
+      h += `<line x1="${lx + 20}" y1="${ly + 84}" x2="${lx + 20}" y2="${ly + 92}" stroke="#b8b8b8" stroke-width="1.6" />`;
+      h += `<text x="${lx + 36}" y="${ly + 92}" font-size="11" fill="#6b7280">one market's N posted prices</text>`;
+
+      svg.innerHTML = h;
+
+      // Active preset highlight
+      document.querySelectorAll('.preset').forEach(b => {
+        const cm = Math.abs(parseFloat(b.dataset.c) - c) < 1e-3;
+        const om = Math.abs(parseFloat(b.dataset.obf) - obf) < 1e-3;
+        const nm = parseInt(b.dataset.n, 10) === n;
+        b.classList.toggle('active', cm && om && nm);
+      });
+    }
+
+    cSlider.addEventListener('input', render);
+    obfSlider.addEventListener('input', render);
+    nSlider.addEventListener('input', render);
+    document.querySelectorAll('.preset').forEach(b => {
+      b.addEventListener('click', () => {
+        cSlider.value = b.dataset.c;
+        obfSlider.value = b.dataset.obf;
+        nSlider.value = b.dataset.n;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
