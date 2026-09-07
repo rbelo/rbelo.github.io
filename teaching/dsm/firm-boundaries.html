@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Firm boundaries — make-or-buy explorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="sim-header">
+    <div class="course">Digital Strategy and Markets · Week 2</div>
+    <h1>The forces that shift: <em>the cost of the market and the cost of the firm</em></h1>
+    <p class="lead">
+      Forty activities, indexed by specificity <em>s</em> ∈ [0, 1], can each be <strong>bought on the market</strong> at
+      <em>TC<sub>m</sub>(s) = m<sub>0</sub> + m<sub>1</sub>·s</em> — contracting and hold-up get harder as the activity gets more specific —
+      or <strong>made inside the firm</strong> at <em>TC<sub>i</sub>(s) = i<sub>0</sub> + i<sub>1</sub>·s</em> —
+      bureaucracy carries a fixed overhead but handles specificity better.
+      Coase's rule: integrate every activity that is cheaper to organize than to buy;
+      the <strong>boundary of the firm</strong> sits where the two lines cross.
+      Digital technology moves <em>both</em> lines. Move them and watch activities cross the boundary — in both directions.
+      Coase's second argument is the <strong>management strain</strong> slider: organizing costs more at the margin as the firm takes on more,
+      which is why one firm does not swallow the whole economy. The second chart replots the same costs against <em>firm size</em>.
+    </p>
+  </header>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Digital market infrastructure (<em>μ</em>): <span class="val" id="muVal">0.00</span></label>
+        <input type="range" id="mu" min="0" max="1" step="0.05" value="0">
+        <div class="note">Platforms, standard contracts, escrow, reputation systems. Lowers the <em>market</em> line — the fixed cost of a transaction most of all. Baseline = 0.</div>
+      </div>
+      <div class="ctrl">
+        <label>Digital coordination tools (<em>κ</em>): <span class="val" id="kappaVal">0.00</span></label>
+        <input type="range" id="kappa" min="0" max="1" step="0.05" value="0">
+        <div class="note">ERP, messaging, dashboards, remote monitoring. Lowers the <em>internal</em> line — bureaucracy gets cheaper to run. Baseline = 0.</div>
+      </div>
+      <div class="ctrl">
+        <label>Management strain (<em>γ</em>): <span class="val" id="gammaVal">0.00</span></label>
+        <input type="range" id="gamma" min="0" max="1" step="0.05" value="0">
+        <div class="note">Attention at the top is scarce, hierarchy grows, and incentives inside weaken as the firm organizes more activities. Raises the <em>internal</em> cost of the marginal activity, by more the further down the ranking the firm reaches. Coordination tools (<em>κ</em>) relieve part of it. Baseline = 0.</div>
+      </div>
+      <div class="ctrl">
+        <label>Platform information advantage (<em>π</em>): <span class="val" id="piVal">0.00</span></label>
+        <input type="range" id="pi" min="0" max="1" step="0.05" value="0">
+        <div class="note">Ratings histories and data trails let markets handle even specific activities without hold-up: flattens the market line's <em>slope</em> only.</div>
+      </div>
+    </div>
+
+    <div class="presets">
+      <button class="preset" data-mu="0" data-kappa="0" data-pi="0" data-gamma="0">Baseline</button>
+      <button class="preset" data-mu="0.7" data-kappa="0" data-pi="0" data-gamma="0">Marketplaces get cheap (μ = 0.7)</button>
+      <button class="preset" data-mu="0" data-kappa="0.7" data-pi="0" data-gamma="0">Coordination gets cheap (κ = 0.7)</button>
+      <button class="preset" data-mu="0.7" data-kappa="0.7" data-pi="0" data-gamma="0">Both fall — firm still grows (μ = κ = 0.7)</button>
+      <button class="preset" data-mu="0.95" data-kappa="0.7" data-pi="0" data-gamma="0">Both fall — boundary stands still (μ = 0.95, κ = 0.7)</button>
+      <button class="preset" data-mu="0" data-kappa="0" data-pi="0.8" data-gamma="0">Platform info advantage (π = 0.8)</button>
+      <button class="preset" data-mu="0" data-kappa="0" data-pi="0" data-gamma="0.6">Organizing strains management (γ = 0.6)</button>
+      <button class="preset" data-mu="0" data-kappa="0.7" data-pi="0" data-gamma="0.6">Coordination tools relieve the strain (κ = 0.7, γ = 0.6)</button>
+    </div>
+  </div>
+
+  <svg id="chart" class="chart" width="820" height="520" viewBox="0 0 820 520"></svg>
+
+  <svg id="chart2" class="chart" width="820" height="400" viewBox="0 0 820 400"></svg>
+
+  <div class="outputs">
+    <div class="out">
+      <div class="label">Firm boundary (<em>s*</em>)</div>
+      <div class="num" id="sStar">0.50</div>
+      <div class="delta" id="sStarDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Firm size (<em>n*</em>): activities made inside</div>
+      <div class="num" id="makeStar">20 / 40</div>
+      <div class="delta" id="makeDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Avg. governance cost per activity</div>
+      <div class="num" id="govStar">–</div>
+      <div class="delta" id="govDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Moved <em>into</em> the firm</div>
+      <div class="num" id="inStar">0</div>
+      <div class="delta">buy → make since baseline</div>
+    </div>
+    <div class="out">
+      <div class="label">Moved <em>out</em> to the market</div>
+      <div class="num" id="outStar">0</div>
+      <div class="delta">make → buy since baseline</div>
+    </div>
+  </div>
+
+  <div class="note-block">
+    The boundary of the firm sits where buying an activity costs the same as making it inside. Digital technology lowers the cost of using the market and the cost of coordinating inside the firm at the same time, so activities can cross the boundary in both directions: cheaper market transactions push the least specific activities out, and cheaper coordination pulls the most specific ones in. The boundary moves only when the relative cost of the two options changes, so both can fall together while no activity flips.
+  </div>
+
+  <div class="note-block">
+    With management strain at zero, nothing stops the firm from growing except specificity, and the first chart's straight lines cross once. Raise <em>γ</em> and the internal line bends upward as the firm reaches down the ranking, because organizing the next activity costs more when management already runs many of them. The second chart is the same comparison with firm size on the horizontal axis: activities are ranked from most specific to least, the market cost of the marginal activity falls along that ranking, the internal cost of the marginal activity rises, and the firm stops at <em>n*</em>, where the two are equal. Coordination tools relieve part of the strain, which is how better internal information lets a firm grow.
+  </div>
+
+
+  <script>
+    const BASE_M0 = 2, BASE_M1 = 10, BASE_I0 = 5, BASE_I1 = 4;
+    const N_ACT = 40;
+    const STRAIN_MAX = 12;
+    const BASELINE = { mu: 0, kappa: 0, pi: 0, gamma: 0 };
+
+    const $ = id => document.getElementById(id);
+    const muSlider = $('mu');
+    const kappaSlider = $('kappa');
+    const piSlider = $('pi');
+    const gammaSlider = $('gamma');
+    const svg = $('chart');
+    const svg2 = $('chart2');
+
+    const W = 820, H = 520;
+    const M = { top: 30, right: 60, bottom: 110, left: 60 };
+    const PW = W - M.left - M.right;
+    const PH = H - M.top - M.bottom;
+    const Y_MAX = 14;
+    const axisY = M.top + PH;
+    const dotY = axisY + 78;          // activity dot row, below the axis
+
+    const xCoord = s => M.left + s * PW;
+    const yCoord = c => M.top + (1 - c / Y_MAX) * PH;
+
+    // Evaluate the model at slider settings (mu, kappa, pi, gamma), all in [0, 1].
+    function evaluate(mu, kappa, pi, gamma) {
+      const m0 = BASE_M0 * (1 - 0.6 * mu);
+      const m1 = BASE_M1 * (1 - 0.25 * mu) * (1 - 0.3 * pi);
+      const i0 = BASE_I0 * (1 - 0.5 * kappa);
+      const i1 = BASE_I1 * (1 - 0.4 * kappa);
+
+      // Management strain: the firm ranks activities from most specific to least and
+      // works down the list, so reaching an activity at specificity s means it already
+      // organizes everything above s. Attention, hierarchy and weaker incentives make
+      // that marginal activity dearer the further down it reaches. Coordination tools
+      // relieve part of the strain, which is how better internal information lets a
+      // firm grow. At gamma = 0 the internal line is straight and Coase has no limit.
+      const g = gamma * (1 - 0.5 * kappa);
+      const market = s => m0 + m1 * s;
+      const internal = s => i0 + i1 * s + g * STRAIN_MAX * (1 - s) * (1 - s);
+
+      const make = [];
+      let makeCount = 0, sumGov = 0;
+      for (let k = 0; k < N_ACT; k++) {
+        const s = (k + 0.5) / N_ACT;
+        const tm = market(s), ti = internal(s);
+        const mk = ti < tm;
+        make.push(mk);
+        if (mk) makeCount++;
+        sumGov += Math.min(tm, ti);
+      }
+
+      // Boundary: walk down from the most specific activity to the first point where
+      // organizing inside stops being cheaper. With gamma = 0 this is the closed-form
+      // crossing (i0 - m0) / (m1 - i1); with strain the internal curve bends, so scan.
+      let sStar = 0, crosses = false;
+      for (let j = 0; j <= 1000; j++) {
+        const s = 1 - j / 1000;
+        if (internal(s) >= market(s)) { sStar = s; crosses = true; break; }
+      }
+
+      return { m0, m1, i0, i1, market, internal, make, makeCount, sStar, crosses, avgGov: sumGov / N_ACT };
+    }
+
+    const BASE = evaluate(BASELINE.mu, BASELINE.kappa, BASELINE.pi, BASELINE.gamma);
+
+    function pct(now, base) {
+      if (base === 0 || !isFinite(base)) return '';
+      const d = (now - base) / base * 100;
+      if (Math.abs(d) < 0.1) return '— baseline';
+      const sign = d > 0 ? '+' : '';
+      return `${sign}${d.toFixed(1)}% vs baseline`;
+    }
+    function deltaClass(now, base, lowerBetter) {
+      if (Math.abs(now - base) < 1e-3) return 'delta';
+      const better = lowerBetter ? (now < base) : (now > base);
+      return better ? 'delta up' : 'delta down';
+    }
+
+    // ── Second chart: the same costs, plotted against how many activities the firm
+    // organizes. Activities are ranked from most specific to least, so the market cost
+    // of the marginal activity falls along the ranking while strain pushes the internal
+    // cost up. The firm stops where the two are equal.
+    const W2 = 820, H2 = 400;
+    const M2 = { top: 30, right: 60, bottom: 76, left: 60 };
+    const PW2 = W2 - M2.left - M2.right;
+    const PH2 = H2 - M2.top - M2.bottom;
+    const axisY2 = M2.top + PH2;
+    const rankS = k => 1 - (k - 0.5) / N_ACT;          // specificity of the k-th activity
+    const xRank = k => M2.left + (k / N_ACT) * PW2;
+    const yCoord2 = c => M2.top + (1 - c / Y_MAX) * PH2;
+
+    function renderSize(cur, isShocked) {
+      let h = '';
+      const nStar = cur.makeCount;
+
+      if (nStar > 0) {
+        h += `<rect x="${M2.left}" y="${M2.top}" width="${(xRank(nStar) - M2.left).toFixed(1)}" height="${PH2}" fill="#3f8db8" opacity="0.06" />`;
+      }
+      for (let c = 2; c < Y_MAX; c += 2) {
+        h += `<line x1="${M2.left}" y1="${yCoord2(c)}" x2="${M2.left + PW2}" y2="${yCoord2(c)}" stroke="#e5e7eb" />`;
+      }
+      h += `<line x1="${M2.left}" y1="${axisY2}" x2="${M2.left + PW2}" y2="${axisY2}" stroke="#6b7280" />`;
+      h += `<line x1="${M2.left}" y1="${M2.top}" x2="${M2.left}" y2="${axisY2}" stroke="#6b7280" />`;
+      for (let k = 0; k <= N_ACT; k += 10) {
+        h += `<text x="${xRank(k)}" y="${axisY2 + 18}" text-anchor="middle" font-size="11" fill="#6b7280">${k}</text>`;
+      }
+      for (let c = 0; c <= Y_MAX; c += 2) {
+        h += `<text x="${M2.left - 8}" y="${yCoord2(c) + 4}" text-anchor="end" font-size="11" fill="#6b7280">${c}</text>`;
+      }
+      h += `<text x="${M2.left + PW2 / 2}" y="${axisY2 + 42}" text-anchor="middle" font-size="13" fill="#1f2937">activities organized internally, ranked from most specific to least</text>`;
+      h += `<text x="${M2.left - 42}" y="${M2.top + PH2 / 2}" text-anchor="middle" font-size="13" fill="#1f2937" transform="rotate(-90 ${M2.left - 42} ${M2.top + PH2 / 2})">cost of the marginal activity</text>`;
+
+      const mp = [], ip = [];
+      for (let k = 1; k <= N_ACT; k++) {
+        const sv = rankS(k);
+        const cm = cur.market(sv), ci = cur.internal(sv);
+        if (cm <= Y_MAX) mp.push(`${xRank(k).toFixed(1)},${yCoord2(cm).toFixed(1)}`);
+        if (ci <= Y_MAX) ip.push(`${xRank(k).toFixed(1)},${yCoord2(ci).toFixed(1)}`);
+      }
+      h += `<polyline points="${mp.join(' ')}" fill="none" stroke="#c44545" stroke-width="2.4" />`;
+      h += `<polyline points="${ip.join(' ')}" fill="none" stroke="#3f8db8" stroke-width="2.4" />`;
+
+      if (nStar > 0 && nStar < N_ACT) {
+        const bx = xRank(nStar);
+        h += `<line x1="${bx.toFixed(1)}" y1="${M2.top}" x2="${bx.toFixed(1)}" y2="${axisY2}" stroke="#9ca3af" stroke-dasharray="3 3" stroke-width="1" />`;
+        h += `<rect x="${(bx - 26).toFixed(1)}" y="${M2.top + 26}" width="52" height="17" fill="#ffffff" opacity="0.9" />`;
+        h += `<text x="${bx.toFixed(1)}" y="${M2.top + 39}" text-anchor="middle" font-size="12" font-weight="600" fill="#1f2937">n* = ${nStar}</text>`;
+      }
+      h += `<text x="${M2.left + 12}" y="${M2.top + 18}" font-size="13" fill="${isShocked ? '#d97743' : '#3f8db8'}" font-weight="600">the firm stops where organizing one more costs what buying it costs</text>`;
+
+      const lx = M2.left + 12, ly = axisY2 - 72;   // bottom-left: no curve reaches there
+      h += `<rect x="${lx}" y="${ly}" width="268" height="52" fill="#ffffff" stroke="#d1d5db" />`;
+      h += `<line x1="${lx + 10}" y1="${ly + 16}" x2="${lx + 30}" y2="${ly + 16}" stroke="#c44545" stroke-width="2.4" />`;
+      h += `<text x="${lx + 36}" y="${ly + 20}" font-size="11" fill="#1f2937">buying the marginal activity</text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 36}" x2="${lx + 30}" y2="${ly + 36}" stroke="#3f8db8" stroke-width="2.4" />`;
+      h += `<text x="${lx + 36}" y="${ly + 40}" font-size="11" fill="#1f2937">organizing it inside, strain included</text>`;
+
+      svg2.innerHTML = h;
+    }
+
+    function render() {
+      const mu = parseFloat(muSlider.value);
+      const kappa = parseFloat(kappaSlider.value);
+      const pi = parseFloat(piSlider.value);
+      const gamma = parseFloat(gammaSlider.value);
+      $('muVal').textContent = mu.toFixed(2);
+      $('kappaVal').textContent = kappa.toFixed(2);
+      $('piVal').textContent = pi.toFixed(2);
+      $('gammaVal').textContent = gamma.toFixed(2);
+
+      const cur = evaluate(mu, kappa, pi, gamma);
+
+      let flippedIn = 0, flippedOut = 0;
+      for (let k = 0; k < N_ACT; k++) {
+        if (cur.make[k] && !BASE.make[k]) flippedIn++;
+        if (!cur.make[k] && BASE.make[k]) flippedOut++;
+      }
+
+      // ── Readouts ──
+      $('sStar').textContent = cur.sStar.toFixed(2);
+      const sD = $('sStarDelta');
+      const sDiff = cur.sStar - BASE.sStar;
+      sD.textContent = Math.abs(sDiff) < 0.005
+        ? `— baseline (${BASE.sStar.toFixed(2)})`
+        : `${sDiff > 0 ? '+' : ''}${sDiff.toFixed(2)} vs baseline ${BASE.sStar.toFixed(2)}`;
+      sD.className = 'delta';
+
+      $('makeStar').textContent = `${cur.makeCount} / 40`;
+      const mD = $('makeDelta');
+      const mDiff = cur.makeCount - BASE.makeCount;
+      mD.textContent = mDiff === 0
+        ? `— baseline (${BASE.makeCount} of 40)`
+        : `${mDiff > 0 ? '+' : ''}${mDiff} vs baseline (${BASE.makeCount})`;
+      mD.className = 'delta';
+
+      $('govStar').textContent = cur.avgGov.toFixed(2);
+      const gD = $('govDelta');
+      gD.textContent = pct(cur.avgGov, BASE.avgGov);
+      gD.className = deltaClass(cur.avgGov, BASE.avgGov, true);
+
+      $('inStar').textContent = flippedIn;
+      $('outStar').textContent = flippedOut;
+
+      // ── Chart ──
+      const isShocked = mu > 1e-9 || kappa > 1e-9 || pi > 1e-9 || gamma > 1e-9;
+
+      let h = '';
+
+      // Integrated region shading (make region: s > s*)
+      if (cur.sStar < 1) {
+        h += `<rect x="${xCoord(cur.sStar).toFixed(1)}" y="${M.top}" width="${(xCoord(1) - xCoord(cur.sStar)).toFixed(1)}" height="${PH}" fill="#3f8db8" opacity="0.06" />`;
+      }
+
+      // Gridlines
+      for (let i = 1; i <= 9; i++) {
+        h += `<line x1="${xCoord(i / 10)}" y1="${M.top}" x2="${xCoord(i / 10)}" y2="${axisY}" stroke="#e5e7eb" />`;
+      }
+      for (let c = 2; c < Y_MAX; c += 2) {
+        h += `<line x1="${M.left}" y1="${yCoord(c)}" x2="${M.left + PW}" y2="${yCoord(c)}" stroke="#e5e7eb" />`;
+      }
+
+      // Axes
+      h += `<line x1="${M.left}" y1="${axisY}" x2="${M.left + PW}" y2="${axisY}" stroke="#6b7280" />`;
+      h += `<line x1="${M.left}" y1="${M.top}" x2="${M.left}" y2="${axisY}" stroke="#6b7280" />`;
+      // Ticks and tick labels
+      for (let i = 0; i <= 5; i++) {
+        const s = i / 5;
+        h += `<text x="${xCoord(s)}" y="${axisY + 18}" text-anchor="middle" font-size="11" fill="#6b7280">${s.toFixed(1)}</text>`;
+      }
+      for (let c = 0; c <= Y_MAX; c += 2) {
+        h += `<text x="${M.left - 8}" y="${yCoord(c) + 4}" text-anchor="end" font-size="11" fill="#6b7280">${c}</text>`;
+      }
+      // Axis labels
+      h += `<text x="${M.left + PW / 2}" y="${axisY + 40}" text-anchor="middle" font-size="13" fill="#1f2937">activity specificity s</text>`;
+      h += `<text x="${M.left - 42}" y="${M.top + PH / 2}" text-anchor="middle" font-size="13" fill="#1f2937" transform="rotate(-90 ${M.left - 42} ${M.top + PH / 2})">cost per transaction</text>`;
+
+      // Baseline boundary (grey dashed vertical at s = 0.50)
+      h += `<line x1="${xCoord(BASE.sStar)}" y1="${M.top}" x2="${xCoord(BASE.sStar)}" y2="${axisY}" stroke="#b8b8b8" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.8" />`;
+
+      // Baseline cost lines (dashed grey)
+      h += `<line x1="${xCoord(0)}" y1="${yCoord(BASE.m0)}" x2="${xCoord(1)}" y2="${yCoord(BASE.m0 + BASE.m1)}" stroke="#b8b8b8" stroke-width="1.4" stroke-dasharray="4 3" />`;
+      h += `<line x1="${xCoord(0)}" y1="${yCoord(BASE.i0)}" x2="${xCoord(1)}" y2="${yCoord(BASE.i0 + BASE.i1)}" stroke="#b8b8b8" stroke-width="1.4" stroke-dasharray="4 3" />`;
+
+      // Current cost lines: market (red), internal (blue)
+      h += `<line x1="${xCoord(0)}" y1="${yCoord(cur.m0)}" x2="${xCoord(1)}" y2="${yCoord(cur.m0 + cur.m1)}" stroke="#c44545" stroke-width="2.4" />`;
+      const ipts = [];
+      for (let j = 0; j <= 200; j++) {
+        const sv = j / 200;
+        const c = cur.internal(sv);
+        if (c <= Y_MAX) ipts.push(`${xCoord(sv).toFixed(1)},${yCoord(c).toFixed(1)}`);
+      }
+      h += `<polyline points="${ipts.join(' ')}" fill="none" stroke="#3f8db8" stroke-width="2.4" />`;
+
+      // Current boundary: vertical guide + crossing point (only if it crosses in [0, 1])
+      if (cur.crosses && cur.sStar > 0 && cur.sStar < 1) {
+        const bx = xCoord(cur.sStar);
+        const by = yCoord(cur.internal(cur.sStar));
+        h += `<line x1="${bx.toFixed(1)}" y1="${by.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${axisY}" stroke="#9ca3af" stroke-dasharray="3 3" stroke-width="1" />`;
+        h += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="5.5" fill="#1f2937" stroke="#ffffff" stroke-width="1.5" />`;
+      }
+
+      // Region labels just above the axis (skip when a region is too narrow)
+      const buyPx = xCoord(cur.sStar) - xCoord(0);
+      const makePx = xCoord(1) - xCoord(cur.sStar);
+      if (buyPx > 120) {
+        h += `<text x="${(xCoord(0) + xCoord(cur.sStar)) / 2}" y="${axisY - 12}" text-anchor="middle" font-size="12" font-weight="600" fill="#c44545" opacity="0.85">buy on the market</text>`;
+      }
+      if (makePx > 120) {
+        h += `<text x="${(xCoord(cur.sStar) + xCoord(1)) / 2}" y="${axisY - 12}" text-anchor="middle" font-size="12" font-weight="600" fill="#3f8db8" opacity="0.85">make inside the firm</text>`;
+      }
+
+      // Annotation (top-left)
+      h += `<text x="${M.left + 12}" y="${M.top + 18}" font-size="13" fill="${isShocked ? '#d97743' : '#3f8db8'}" font-weight="600">s* = ${cur.sStar.toFixed(2)} · make ${cur.makeCount} of 40 activities</text>`;
+
+      // Legend (top-left, below the annotation — the plot is empty there)
+      const lx = M.left + 12;
+      const ly = M.top + 30;
+      h += `<rect x="${lx}" y="${ly}" width="244" height="106" fill="#ffffff" stroke="#d1d5db" />`;
+      h += `<line x1="${lx + 10}" y1="${ly + 16}" x2="${lx + 30}" y2="${ly + 16}" stroke="#c44545" stroke-width="2.4" />`;
+      h += `<text x="${lx + 36}" y="${ly + 20}" font-size="11" fill="#1f2937">market transaction cost TC<tspan baseline-shift="sub" font-size="9">m</tspan></text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 34}" x2="${lx + 30}" y2="${ly + 34}" stroke="#3f8db8" stroke-width="2.4" />`;
+      h += `<text x="${lx + 36}" y="${ly + 38}" font-size="11" fill="#1f2937">internal coordination cost TC<tspan baseline-shift="sub" font-size="9">i</tspan></text>`;
+      h += `<line x1="${lx + 10}" y1="${ly + 52}" x2="${lx + 30}" y2="${ly + 52}" stroke="#b8b8b8" stroke-width="1.4" stroke-dasharray="4 3" />`;
+      h += `<text x="${lx + 36}" y="${ly + 56}" font-size="11" fill="#6b7280">baseline lines and boundary</text>`;
+      h += `<circle cx="${lx + 20}" cy="${ly + 70}" r="5" fill="#1f2937" stroke="#ffffff" stroke-width="1.5" />`;
+      h += `<text x="${lx + 36}" y="${ly + 74}" font-size="11" fill="#1f2937">boundary s* (lines cross)</text>`;
+      h += `<rect x="${lx + 11}" y="${ly + 82}" width="18" height="12" fill="#3f8db8" opacity="0.12" stroke="#d1d5db" />`;
+      h += `<text x="${lx + 36}" y="${ly + 92}" font-size="11" fill="#6b7280">integrated (make) region</text>`;
+
+      // Activity dot row (below the axis): fill = make, open = buy, orange = flipped
+      h += `<text x="${M.left}" y="${dotY - 16}" font-size="11" fill="#6b7280">40 activities · filled = make (inside the firm) · open = buy (market) · orange = flipped vs baseline</text>`;
+      for (let k = 0; k < N_ACT; k++) {
+        const s = (k + 0.5) / N_ACT;
+        const flipped = cur.make[k] !== BASE.make[k];
+        const color = flipped ? '#d97743' : (cur.make[k] ? '#3f8db8' : '#c44545');
+        const cx = xCoord(s).toFixed(1);
+        if (cur.make[k]) {
+          h += `<circle cx="${cx}" cy="${dotY}" r="5.5" fill="${color}" stroke="#ffffff" stroke-width="1" />`;
+        } else {
+          h += `<circle cx="${cx}" cy="${dotY}" r="5" fill="#ffffff" stroke="${color}" stroke-width="1.8" />`;
+        }
+      }
+
+      svg.innerHTML = h;
+      renderSize(cur, isShocked);
+
+      // Active preset highlight
+      document.querySelectorAll('.preset').forEach(b => {
+        const mm = Math.abs(parseFloat(b.dataset.mu) - mu) < 1e-3;
+        const km = Math.abs(parseFloat(b.dataset.kappa) - kappa) < 1e-3;
+        const pm = Math.abs(parseFloat(b.dataset.pi) - pi) < 1e-3;
+        const gm = Math.abs(parseFloat(b.dataset.gamma) - gamma) < 1e-3;
+        b.classList.toggle('active', mm && km && pm && gm);
+      });
+    }
+
+    muSlider.addEventListener('input', render);
+    kappaSlider.addEventListener('input', render);
+    piSlider.addEventListener('input', render);
+    gammaSlider.addEventListener('input', render);
+    document.querySelectorAll('.preset').forEach(b => {
+      b.addEventListener('click', () => {
+        muSlider.value = b.dataset.mu;
+        kappaSlider.value = b.dataset.kappa;
+        piSlider.value = b.dataset.pi;
+        gammaSlider.value = b.dataset.gamma;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
