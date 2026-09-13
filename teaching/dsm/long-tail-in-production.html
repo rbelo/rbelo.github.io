@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The long tail in production — entry costs and unpredictable quality</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="wide">
+  <header class="sim-header">
+    <div class="course">Digital Strategy and Markets · Week 3</div>
+    <h1>The forces that shift: <em>the cost of publishing and the predictability of success</em></h1>
+  </header>
+
+  <div class="sim-layout">
+  <aside class="sim-side">
+  <div class="panel">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Cost of publishing before digitization (<em>T</em>): <span class="val" id="tVal">20.0</span></label>
+        <input type="range" id="t" min="1" max="60" step="0.5" value="20">
+        <div class="note">A song is published when its <em>expected</em> revenue covers it.</div>
+      </div>
+      <div class="ctrl">
+        <label>Cost of publishing after digitization (<em>T′</em>): <span class="val" id="tpVal">3.0</span></label>
+        <input type="range" id="tp" min="0.5" max="60" step="0.5" value="3">
+        <div class="note">Kept at or below <em>T</em>. In the paper the cost fell from about $1,800 to $19 a song.</div>
+      </div>
+      <div class="ctrl">
+        <label>Unpredictability of success (<em>σ</em>): <span class="val" id="sigmaVal">1.20</span></label>
+        <input type="range" id="sigma" min="0" max="2" step="0.1" value="1.2">
+        <div class="note">0 is perfect foresight. The forecast explains a share <span class="val" id="r2Val">0.35</span> of log revenue; the paper's explains 0.32.</div>
+        <div class="note"><label style="display:inline;font-weight:400"><input type="checkbox" id="nopred"> complete unpredictability: the forecast carries no information about the song</label></div>
+      </div>
+      <div class="ctrl">
+        <label>Selected song (rank by forecast): <span class="val" id="songVal">12</span></label>
+        <input type="range" id="song" min="1" max="50" step="1" value="12">
+        <div class="note">Or click a bar. Bars ordered <label style="display:inline;font-weight:400"><input type="radio" name="order" value="forecast" checked> by forecast</label> &nbsp; <label style="display:inline;font-weight:400"><input type="radio" name="order" value="realized"> by sales</label></div>
+      </div>
+    </div>
+
+    <div class="presets">
+      <button class="preset" data-t="20" data-tp="20" data-sigma="1.2" data-nopred="0">Before digitization (T′ = T)</button>
+      <button class="preset" data-t="20" data-tp="3" data-sigma="0" data-nopred="0">Perfect foresight (σ = 0)</button>
+      <button class="preset" data-t="20" data-tp="3" data-sigma="1.2" data-nopred="0">Unpredictable quality (σ = 1.2)</button>
+      <button class="preset" data-t="20" data-tp="triple" data-sigma="1.2" data-nopred="0">Entry triples (n′ = 3n)</button>
+      <button class="preset" data-t="20" data-tp="3" data-sigma="1.2" data-nopred="1">Complete unpredictability</button>
+      <button class="preset" id="redraw" data-redraw="1">Redraw the forecast errors</button>
+    </div>
+  </div>
+  </aside>
+
+  <main class="sim-main">
+
+  <div class="charts">
+  <svg id="chart" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  <svg id="chart2" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  </div>
+
+  <div class="outputs">
+    <div class="out">
+      <div class="label">Songs published: before → after</div>
+      <div class="num" id="nOut">–</div>
+      <div class="delta" id="nDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Consumer surplus, after</div>
+      <div class="num" id="csOut">–</div>
+      <div class="delta" id="csDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Producers' profit (revenue − publishing costs), after</div>
+      <div class="num" id="piOut">–</div>
+      <div class="delta" id="piDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Welfare (consumer surplus + profit), after</div>
+      <div class="num" id="wOut">–</div>
+      <div class="delta" id="wDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Gain in consumer surplus, relative to the traditional long-tail calculation</div>
+      <div class="num" id="ratioOut">–</div>
+      <div class="delta" id="ratioDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Hits the forecast missed</div>
+      <div class="num" id="hitsOut">–</div>
+      <div class="delta" id="hitsDelta">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="note-block">
+    <strong>The setup.</strong> Fifty candidate songs have revenues that follow a long tail: the best sells a lot, most sell little. Each song costs <em>T</em> to publish, and its producer publishes it when the revenue it <strong>expects</strong> covers <em>T</em>. Producers forecast with error, and <em>σ</em> sets how large that error is. Digitization lowers the cost from <em>T</em> to <em>T′</em>, so more songs are published. Aguiar and Waldfogel ask how much that adds to consumer surplus and welfare, and the answer depends on <em>σ</em>: with perfect foresight the added songs are the ones everyone knew were weak, and with unpredictable quality some of them turn out to be hits. Click a bar to see that song's demand curve, with its consumer surplus, its profit, and the cost it has to cover.
+  </div>
+
+  <div class="note-block">
+    <strong>What to notice.</strong> The cost line <em>T</em> cuts the ranked list of songs: everything whose forecast lies above it is published. Lowering the cost to <em>T′</em> adds the songs between the two lines. With <em>σ</em> = 0 the forecast is exact, the bars fall in order, and the added songs are the weakest ones, so consumer surplus grows by little: this is the usual long tail, the one Brynjolfsson, Hu and Smith measured for books. Raise <em>σ</em> and the bars scatter around the forecast line. The songs added when the cost falls now include some whose realized revenue beats the old cost <em>T</em>, marked with a dot, and the gain in consumer surplus is larger than the traditional calculation, which keeps the best sellers, would give. Tick complete unpredictability and entry becomes a lottery: the same number of songs clears each cost, but which ones is random, so hits stay unpublished, published songs fail to cover even <em>T′</em>, and welfare can fall while consumer surplus still rises.
+  </div>
+
+  <div class="note-block">
+    <strong>How this maps to the paper.</strong> Aguiar and Waldfogel (2018) estimate that digitization tripled the number of new songs, and compare the 2011 catalog with a counterfactual holding one third of that year's releases. Which third is kept depends on what producers could predict. Removing the songs with the lowest <em>realized</em> appeal gives the perfect-foresight benefit, $0.51 million of consumer surplus in Table 6. Removing the songs with the lowest <em>forecast</em> appeal, with a forecast fitted on the previous year's releases, gives $10.09 million, 19.82 times larger; the welfare ratio is 11.57. The paper's third regime, no predictability, keeps a random third: its consumer-surplus ratio is 299 and its welfare change is negative, because the entry costs of the songs that never pay off are counted. The simulation reproduces the mechanism with a stylized demand: price is fixed at 1, each song's demand is linear, so its consumer surplus is half its revenue. The ratio here stays well below the paper's, because the paper's catalog holds over two million substitutable songs and its tail sells almost nothing, so the traditional calculation finds almost no gain to begin with. The ratio also depends on the draw of forecast errors, which is why the button redraws them.
+  </div>
+
+  </main>
+  </div>
+
+  <footer class="sim-footer">
+    Fifty songs with realized revenue <em>y<sub>i</sub></em> = 100 / <em>i</em> (a Zipf tail). Linear demand per song with choke price 2 and price fixed at 1, so quantity equals revenue and consumer surplus equals half the revenue. Forecast log <em>y′<sub>i</sub></em> = log <em>y<sub>i</sub></em> + σ·ε<sub>i</sub> with ε standard normal, drawn once and fixed until redrawn. A song is published when <em>y′<sub>i</sub></em> ≥ <em>T</em> (before) or <em>y′<sub>i</sub></em> ≥ <em>T′</em> (after). Profit = revenue − cost of publishing; welfare = consumer surplus + profit. The benchmark for the ratio keeps the same number of songs as before digitization, chosen by realized sales among the songs published after, which is the traditional long-tail calculation and coincides with the forecast-based choice when σ = 0.
+  </footer>
+
+  <script>
+    // MODEL-BEGIN
+    const N = 50, ALPHA = 1.0, Y1 = 100, P = 1, V = 2;
+    const REALIZED = Array.from({ length: N }, (_, i) => Y1 * Math.pow(i + 1, -ALPHA));
+    const LOGVAR = (() => { const l = REALIZED.map(Math.log); const m = l.reduce((a, b) => a + b, 0) / N; return l.reduce((a, b) => a + (b - m) * (b - m), 0) / N; })();
+
+    function mulberry32(a) {
+      return function () {
+        a |= 0; a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+    function normals(seed, n) {
+      const r = mulberry32(seed); const out = [];
+      while (out.length < n) {
+        const u = Math.max(r(), 1e-12), v = r();
+        const m = Math.sqrt(-2 * Math.log(u));
+        out.push(m * Math.cos(2 * Math.PI * v)); out.push(m * Math.sin(2 * Math.PI * v));
+      }
+      return out.slice(0, n);
+    }
+
+    // Songs with forecasts, ordered by forecast (descending). Each carries its realized rank (1 = best).
+    function songs(sigma, eps, nopred) {
+      // With no predictability the forecasts are the realized revenues dealt out at random, so the
+      // forecast of a song says nothing about it while the number of songs clearing any cost is unchanged.
+      const perm = eps.map((e, i) => [e, i]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+      const arr = REALIZED.map((y, i) => ({ rank: i + 1, y, f: nopred ? REALIZED[perm[i]] : y * Math.exp(sigma * eps[i]), cs: y / 2 }));
+      arr.sort((a, b) => b.f - a.f);
+      arr.forEach((s, k) => { s.frank = k + 1; });
+      return arr;
+    }
+    function totals(arr, cost) {
+      let n = 0, rev = 0, cs = 0;
+      for (const s of arr) if (s.f >= cost) { n++; rev += s.y; cs += s.cs; }
+      const tc = n * cost;
+      return { n, rev, cs, tc, profit: rev - tc, w: cs + rev - tc };
+    }
+    function evaluate(T, Tp, sigma, eps, nopred) {
+      const arr = songs(sigma, eps, nopred);
+      const before = totals(arr, T), after = totals(arr, Tp);
+      for (const s of arr) { s.before = s.f >= T; s.after = s.f >= Tp; s.added = s.after && !s.before; s.hit = s.added && s.y >= T; }
+      const hits = arr.filter(s => s.hit).length;
+      // The paper's benchmark: keep the same number of songs as before, chosen by realized sales among the
+      // songs published after (the traditional long-tail calculation), and measure the gain against that set.
+      const published = arr.filter(s => s.after).slice().sort((a, b) => b.y - a.y);
+      const keepPF = published.slice(0, before.n);
+      const csPF = keepPF.reduce((acc, s) => acc + s.cs, 0);
+      const dcsPF = after.cs - csPF;
+      const dcs = after.cs - before.cs;
+      const ratio = (Tp < T - 1e-9 && dcsPF > 1e-9) ? dcs / dcsPF : null;
+      return { arr, before, after, hits, dcs, dcsPF, ratio };
+    }
+    // T' at which three times as many songs are published as at T (capped at N).
+    function tripleCost(T, sigma, eps, nopred) {
+      const arr = songs(sigma, eps, nopred);
+      const n = totals(arr, T).n;
+      const target = Math.min(N, Math.max(1, 3 * n));
+      return arr[target - 1].f;
+    }
+    // MODEL-END
+
+    const $ = id => document.getElementById(id);
+    const tSlider = $('t'), tpSlider = $('tp'), sigmaSlider = $('sigma'), songSlider = $('song');
+    const svg = $('chart'), svg2 = $('chart2');
+    let seed = 2018;
+    let eps = normals(seed, N);
+    let order = 'forecast';
+
+    const C = { accent: '#3f8db8', cost: '#c44545', gain: '#5e8c5e', shock: '#d97743', base: '#b8b8b8', text: '#1f2937', muted: '#6b7280', grid: '#e5e7eb' };
+
+    // ── Chart 1: the market for new songs ──
+    const W = 820, H = 460;
+    const M = { top: 34, right: 24, bottom: 62, left: 60 };
+    const PW = W - M.left - M.right, PH = H - M.top - M.bottom;
+    const Y_MAX = 110;
+    const axisY = M.top + PH;
+    const xBar = k => M.left + ((k - 1) / N) * PW;          // left edge of the k-th bar
+    const bw = PW / N;
+    const yC = v => M.top + (1 - Math.min(v, Y_MAX) / Y_MAX) * PH;
+
+    function renderMarket(cur, T, Tp, sel) {
+      const arr = order === 'forecast' ? cur.arr : cur.arr.slice().sort((a, b) => a.rank - b.rank);
+      let h = '';
+      for (let v = 20; v < Y_MAX; v += 20) h += `<line x1="${M.left}" y1="${yC(v)}" x2="${M.left + PW}" y2="${yC(v)}" stroke="${C.grid}" />`;
+      // bars
+      arr.forEach((s, k) => {
+        const x = xBar(k + 1) + 1, wdt = bw - 2;
+        const fill = s.before ? C.accent : (s.added ? C.gain : C.base);
+        const op = s.before || s.added ? 0.85 : 0.5;
+        const isSel = s.frank === sel;
+        h += `<rect class="bar" data-frank="${s.frank}" x="${x.toFixed(1)}" y="${yC(s.y).toFixed(1)}" width="${wdt.toFixed(1)}" height="${(axisY - yC(s.y)).toFixed(1)}" fill="${fill}" opacity="${op}" ${isSel ? `stroke="${C.text}" stroke-width="2"` : ''} style="cursor:pointer" />`;
+        if (s.hit) h += `<circle cx="${(x + wdt / 2).toFixed(1)}" cy="${(yC(s.y) - 7).toFixed(1)}" r="3.6" fill="${C.shock}" />`;
+        if (s.y > Y_MAX) h += `<text x="${(x + wdt / 2).toFixed(1)}" y="${M.top - 4}" text-anchor="middle" font-size="10" fill="${C.muted}">${s.y.toFixed(0)}</text>`;
+      });
+      // forecast line
+      const pts = arr.map((s, k) => `${(xBar(k + 1) + bw / 2).toFixed(1)},${yC(s.f).toFixed(1)}`);
+      h += `<polyline points="${pts.join(' ')}" fill="none" stroke="${C.text}" stroke-width="1.4" opacity="0.7" />`;
+      // cost lines
+      h += `<line x1="${M.left}" y1="${yC(T)}" x2="${M.left + PW}" y2="${yC(T)}" stroke="${C.cost}" stroke-width="2" />`;
+      h += `<text x="${M.left + PW - 4}" y="${yC(T) - 5}" text-anchor="end" font-size="12" font-weight="600" fill="${C.cost}">T = ${T.toFixed(1)}</text>`;
+      if (Tp < T - 1e-9) {
+        h += `<line x1="${M.left}" y1="${yC(Tp)}" x2="${M.left + PW}" y2="${yC(Tp)}" stroke="${C.shock}" stroke-width="2" stroke-dasharray="6 3" />`;
+        h += `<text x="${M.left + PW - 4}" y="${yC(Tp) - 5}" text-anchor="end" font-size="12" font-weight="600" fill="${C.shock}">T′ = ${Tp.toFixed(1)}</text>`;
+      }
+      // axes
+      h += `<line x1="${M.left}" y1="${axisY}" x2="${M.left + PW}" y2="${axisY}" stroke="${C.muted}" />`;
+      h += `<line x1="${M.left}" y1="${M.top}" x2="${M.left}" y2="${axisY}" stroke="${C.muted}" />`;
+      for (let k = 10; k <= N; k += 10) h += `<text x="${(xBar(k) + bw / 2).toFixed(1)}" y="${axisY + 16}" text-anchor="middle" font-size="11" fill="${C.muted}">${k}</text>`;
+      for (let v = 0; v <= Y_MAX; v += 20) h += `<text x="${M.left - 8}" y="${yC(v) + 4}" text-anchor="end" font-size="11" fill="${C.muted}">${v}</text>`;
+      h += `<text x="${M.left + PW / 2}" y="${axisY + 38}" text-anchor="middle" font-size="13" fill="${C.text}">songs, ranked by ${order === 'forecast' ? 'the revenue their producers expect' : 'realized sales'}</text>`;
+      h += `<text x="${M.left - 42}" y="${M.top + PH / 2}" text-anchor="middle" font-size="13" fill="${C.text}" transform="rotate(-90 ${M.left - 42} ${M.top + PH / 2})">revenue per song</text>`;
+      // headline
+      h += `<text x="${M.left + 12}" y="${M.top - 12}" font-size="13" font-weight="600" fill="${Tp < T - 1e-9 ? C.shock : C.accent}">${cur.before.n} songs published at T · ${cur.after.n} at T′ · ${cur.hits} of the added ones beat the old cost</text>`;
+      // legend (top-right; the tail is low there)
+      const lx = M.left + PW - 270, ly = M.top + 8;
+      h += `<rect x="${lx}" y="${ly}" width="262" height="96" fill="#ffffff" stroke="#d1d5db" />`;
+      const row = (dy, sw, label, kind) => {
+        if (kind === 'bar') h += `<rect x="${lx + 10}" y="${ly + dy - 8}" width="18" height="12" fill="${sw.fill}" opacity="${sw.op}" />`;
+        else if (kind === 'line') h += `<line x1="${lx + 10}" y1="${ly + dy - 2}" x2="${lx + 28}" y2="${ly + dy - 2}" stroke="${sw.stroke}" stroke-width="1.4" />`;
+        else h += `<circle cx="${lx + 19}" cy="${ly + dy - 2}" r="3.6" fill="${sw.fill}" />`;
+        h += `<text x="${lx + 36}" y="${ly + dy + 2}" font-size="12" fill="${C.text}">${label}</text>`;
+      };
+      row(16, { fill: C.accent, op: 0.85 }, 'published at the old cost T', 'bar');
+      row(34, { fill: C.gain, op: 0.85 }, 'added when the cost falls to T′', 'bar');
+      row(52, { fill: C.base, op: 0.5 }, 'still unpublished', 'bar');
+      row(70, { stroke: C.text }, 'forecast revenue', 'line');
+      row(86, { fill: C.shock }, 'added song whose revenue beats T', 'dot');
+      svg.innerHTML = h;
+    }
+
+    // ── Chart 2: one song's demand ──
+    const W2 = 820, H2 = 460;
+    const M2 = { top: 40, right: 270, bottom: 62, left: 60 };
+    const PW2 = W2 - M2.left - M2.right, PH2 = H2 - M2.top - M2.bottom;
+    const axisY2 = M2.top + PH2;
+    const PMAX = 2.2;
+    const yP = p => M2.top + (1 - p / PMAX) * PH2;
+
+    function renderDemand(s, T, Tp) {
+      const qChoke = 2 * s.y;                     // quantity at price 0
+      const xQ = q => M2.left + (q / (qChoke * 1.08)) * PW2;
+      const q = s.y;                               // quantity at price 1
+      let h = '';
+      // areas
+      h += `<polygon points="${xQ(0)},${yP(P)} ${xQ(0)},${yP(V)} ${xQ(q)},${yP(P)}" fill="${C.accent}" opacity="0.22" />`;
+      h += `<rect x="${xQ(0)}" y="${yP(P)}" width="${(xQ(q) - xQ(0)).toFixed(1)}" height="${(axisY2 - yP(P)).toFixed(1)}" fill="${C.gain}" opacity="0.28" />`;
+      const costH = Tp / q;                        // height of a rectangle of area Tp on base q
+      const costTop = Math.min(costH, PMAX);
+      h += `<rect x="${xQ(0)}" y="${yP(costTop)}" width="${(xQ(q) - xQ(0)).toFixed(1)}" height="${(axisY2 - yP(costTop)).toFixed(1)}" fill="${C.cost}" opacity="${costH > P ? 0.28 : 0.4}" />`;
+      if (costH > P) h += `<line x1="${xQ(0)}" y1="${yP(costTop)}" x2="${xQ(q)}" y2="${yP(costTop)}" stroke="${C.cost}" stroke-width="1.5" stroke-dasharray="4 3" />`;
+      // demand line, price line, quantity line
+      h += `<line x1="${xQ(0)}" y1="${yP(V)}" x2="${xQ(qChoke)}" y2="${yP(0)}" stroke="${C.accent}" stroke-width="2.4" />`;
+      h += `<line x1="${xQ(0)}" y1="${yP(P)}" x2="${xQ(qChoke * 1.04)}" y2="${yP(P)}" stroke="${C.text}" stroke-width="1" stroke-dasharray="4 3" />`;
+      h += `<line x1="${xQ(q)}" y1="${yP(P)}" x2="${xQ(q)}" y2="${axisY2}" stroke="${C.text}" stroke-width="1" stroke-dasharray="4 3" />`;
+      // axes
+      h += `<line x1="${M2.left}" y1="${axisY2}" x2="${M2.left + PW2}" y2="${axisY2}" stroke="${C.muted}" />`;
+      h += `<line x1="${M2.left}" y1="${M2.top}" x2="${M2.left}" y2="${axisY2}" stroke="${C.muted}" />`;
+      for (let p = 0; p <= 2; p += 0.5) h += `<text x="${M2.left - 8}" y="${yP(p) + 4}" text-anchor="end" font-size="11" fill="${C.muted}">${p.toFixed(1)}</text>`;
+      h += `<text x="${xQ(q)}" y="${axisY2 + 16}" text-anchor="middle" font-size="11" fill="${C.muted}">${q.toFixed(1)}</text>`;
+      h += `<text x="${M2.left + PW2 / 2}" y="${axisY2 + 38}" text-anchor="middle" font-size="13" fill="${C.text}">copies of this song sold</text>`;
+      h += `<text x="${M2.left - 42}" y="${M2.top + PH2 / 2}" text-anchor="middle" font-size="13" fill="${C.text}" transform="rotate(-90 ${M2.left - 42} ${M2.top + PH2 / 2})">price per copy</text>`;
+      // labels
+      if (xQ(q) - xQ(0) > 90) {
+        h += `<text x="${(xQ(0) + xQ(q) / 3).toFixed(1)}" y="${(yP(P) + yP(V)) / 2 + 4}" font-size="11" fill="${C.accent}" font-weight="600">consumer surplus</text>`;
+        if (costH < P - 0.25) h += `<text x="${(xQ(0) + 6).toFixed(1)}" y="${((yP(P) + yP(costTop)) / 2 + 4).toFixed(1)}" font-size="11" fill="${C.gain}" font-weight="600">profit</text>`;
+        h += `<text x="${(xQ(0) + 6).toFixed(1)}" y="${(axisY2 - 6).toFixed(1)}" font-size="11" fill="${C.cost}" font-weight="600">${costH > P ? 'cost of publishing exceeds revenue' : 'cost of publishing T′'}</text>`;
+      }
+      h += `<text x="${xQ(qChoke) + 4}" y="${yP(0) - 6}" font-size="11" fill="${C.accent}">demand</text>`;
+      h += `<text x="${M2.left + 4}" y="${yP(P) - 5}" font-size="11" fill="${C.text}">price = 1</text>`;
+      // side panel with the numbers
+      const sx = M2.left + PW2 + 24, sy = M2.top + 6;
+      const profitTp = s.y - Tp, profitT = s.y - T;
+      const line = (dy, txt, col, bold) => { h += `<text x="${sx}" y="${sy + dy}" font-size="13" fill="${col || C.text}" ${bold ? 'font-weight="600"' : ''}>${txt}</text>`; };
+      line(0, `Song ${s.frank} by forecast (${s.rank} by sales)`, C.text, true);
+      line(22, `forecast revenue y′ = ${s.f.toFixed(1)}`, C.muted);
+      line(40, `realized revenue y = ${s.y.toFixed(1)}`);
+      line(62, `consumer surplus = ${s.cs.toFixed(1)}`, C.accent);
+      line(80, `profit at T′ = ${profitTp.toFixed(1)}`, profitTp >= 0 ? C.gain : C.cost);
+      line(98, `welfare at T′ = ${(s.cs + profitTp).toFixed(1)}`);
+      line(122, `published at T (${T.toFixed(1)})? ${s.before ? 'yes' : 'no'}`, s.before ? C.accent : C.muted);
+      line(140, `published at T′ (${Tp.toFixed(1)})? ${s.after ? 'yes' : 'no'}`, s.after ? C.gain : C.muted);
+      line(164, s.hit ? 'a hit the forecast missed' : (s.added ? 'added by digitization' : (s.before ? 'published either way' : 'unpublished either way')), s.hit ? C.shock : C.muted, s.hit);
+      svg2.innerHTML = h;
+    }
+
+    function fmt(v) { return (Math.round(v * 10) / 10).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+    function deltaText(after, before) {
+      const d = after - before;
+      if (Math.abs(d) < 0.05) return { txt: `unchanged from ${fmt(before)}`, cls: 'delta' };
+      const pct = Math.abs(before) > 1e-9 ? ` (${d > 0 ? '+' : ''}${(d / Math.abs(before) * 100).toFixed(0)}%)` : '';
+      return { txt: `${d > 0 ? '+' : ''}${fmt(d)} vs ${fmt(before)} before${pct}`, cls: d > 0 ? 'delta up' : 'delta down' };
+    }
+
+    function render() {
+      const T = parseFloat(tSlider.value);
+      if (parseFloat(tpSlider.value) > T) tpSlider.value = T;
+      const Tp = parseFloat(tpSlider.value);
+      const sigma = parseFloat(sigmaSlider.value);
+      const nopred = $('nopred').checked;
+      sigmaSlider.disabled = nopred;
+      const sel = parseInt(songSlider.value, 10);
+      $('tVal').textContent = T.toFixed(1);
+      $('tpVal').textContent = Tp.toFixed(1);
+      $('sigmaVal').textContent = sigma.toFixed(2);
+      $('r2Val').textContent = nopred ? '0.00' : (LOGVAR / (LOGVAR + sigma * sigma)).toFixed(2);
+      $('songVal').textContent = sel;
+
+      const cur = evaluate(T, Tp, sigma, eps, nopred);
+
+      $('nOut').textContent = `${cur.before.n} → ${cur.after.n}`;
+      const nd = cur.after.n - cur.before.n;
+      $('nDelta').textContent = nd === 0 ? 'no additional songs' : `+${nd} songs added by the lower cost`;
+      $('nDelta').className = nd > 0 ? 'delta up' : 'delta';
+
+      $('csOut').textContent = fmt(cur.after.cs);
+      let d = deltaText(cur.after.cs, cur.before.cs); $('csDelta').textContent = d.txt; $('csDelta').className = d.cls;
+      $('piOut').textContent = fmt(cur.after.profit);
+      d = deltaText(cur.after.profit, cur.before.profit); $('piDelta').textContent = d.txt; $('piDelta').className = d.cls;
+      $('wOut').textContent = fmt(cur.after.w);
+      d = deltaText(cur.after.w, cur.before.w); $('wDelta').textContent = d.txt; $('wDelta').className = d.cls;
+
+      if (cur.ratio === null) { $('ratioOut').textContent = '–'; $('ratioDelta').textContent = 'no gain to compare (T′ = T)'; $('ratioDelta').className = 'delta'; }
+      else { $('ratioOut').textContent = `${cur.ratio.toFixed(2)}×`; $('ratioDelta').textContent = `+${fmt(cur.dcs)} here vs +${fmt(cur.dcsPF)} if the ${cur.before.n} kept songs were the best sellers (the paper: 19.82×)`; $('ratioDelta').className = cur.ratio > 1.005 ? 'delta up' : 'delta'; }
+
+      $('hitsOut').textContent = cur.hits;
+      $('hitsDelta').textContent = cur.hits === 0 ? 'no added song beats the old cost T' : `added songs whose revenue beats the old cost T`;
+      $('hitsDelta').className = cur.hits > 0 ? 'delta up' : 'delta';
+
+      renderMarket(cur, T, Tp, sel);
+      renderDemand(cur.arr[sel - 1], T, Tp);
+
+      document.querySelectorAll('.preset').forEach(b => {
+        if (b.dataset.redraw) return;
+        const tm = Math.abs(parseFloat(b.dataset.t) - T) < 1e-3;
+        const sm = nopred ? true : Math.abs(parseFloat(b.dataset.sigma) - sigma) < 1e-3;
+        const pm = (b.dataset.nopred === '1') === nopred;
+        const tpm = b.dataset.tp === 'triple' ? (cur.after.n === Math.min(N, 3 * cur.before.n)) : Math.abs(parseFloat(b.dataset.tp) - Tp) < 1e-3;
+        b.classList.toggle('active', tm && sm && pm && tpm);
+      });
+    }
+
+    [tSlider, tpSlider, sigmaSlider, songSlider].forEach(s => s.addEventListener('input', render));
+    $('nopred').addEventListener('change', render);
+    document.querySelectorAll('input[name=order]').forEach(r => r.addEventListener('change', e => { order = e.target.value; render(); }));
+    svg.addEventListener('click', e => {
+      const b = e.target.closest('.bar');
+      if (b) { songSlider.value = b.dataset.frank; render(); }
+    });
+    document.querySelectorAll('.preset').forEach(b => {
+      b.addEventListener('click', () => {
+        if (b.dataset.redraw) { seed += 1; eps = normals(seed, N); render(); return; }
+        tSlider.value = b.dataset.t;
+        sigmaSlider.value = b.dataset.sigma;
+        $('nopred').checked = b.dataset.nopred === '1';
+        if (b.dataset.tp === 'triple') tpSlider.value = tripleCost(parseFloat(b.dataset.t), parseFloat(b.dataset.sigma), eps, $('nopred').checked);
+        else tpSlider.value = b.dataset.tp;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>

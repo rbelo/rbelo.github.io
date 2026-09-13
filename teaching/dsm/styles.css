@@ -52,6 +52,10 @@ body {
 header.sim-header {
   padding-bottom: 1rem;
   margin-bottom: 1.75rem;
+}
+body.wide header.sim-header {
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.2rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -293,6 +297,40 @@ svg.chart text {
 }
 .note-block strong { color: var(--text); font-weight: 500; }
 .note-block em { font-style: italic; color: var(--text); }
+
+/* ─── SIDE-PANEL LAYOUT ──────────────────────────────────────────────── */
+/* Controls in a sticky left column, charts and readouts on the right, so a
+   parameter can be moved while the plots are in view. Opt in with
+   <body class="wide"> and wrap the panel in .sim-side and the rest in .sim-main. */
+
+body.wide { max-width: 1840px; padding-top: 1.5rem; }
+
+.sim-layout {
+  display: grid;
+  grid-template-columns: 330px minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.sim-side { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; }
+.sim-side .panel { margin: 0; padding: 1rem 1.1rem; }
+.sim-side .controls { grid-template-columns: 1fr; gap: 0.7rem; }
+.sim-side .ctrl label { margin-bottom: 0.2rem; }
+.sim-side .ctrl .note { margin-top: 0.2rem; }
+.sim-side .ctrl .note { font-size: 0.78rem; }
+.sim-side .presets { flex-direction: column; align-items: stretch; gap: 0.3rem; margin-top: 0.8rem; padding-top: 0.7rem; }
+.sim-side .preset { padding: 0.35rem 0.7rem; }
+.sim-side .preset { text-align: left; }
+
+.sim-main svg.chart { margin-top: 0; }
+.sim-main .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 1rem; align-items: start; }
+.sim-main .charts svg.chart { margin: 0; width: 100%; }
+.sim-main .outputs { margin-top: 0.8rem; }
+
+@media (max-width: 900px) {
+  .sim-layout { grid-template-columns: 1fr; }
+  .sim-side { position: static; }
+}
 
 /* ─── FOOTER ─────────────────────────────────────────────────────────── */
 
