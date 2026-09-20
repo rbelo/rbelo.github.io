@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Algorithmic collusion: two pricing programs learn to sustain high prices</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="wide">
+  <header class="sim-header">
+    <div class="course">Digital Strategy and Markets · Week 4</div>
+    <h1>The force that shifts: <em>the cost of watching rivals and answering them</em></h1>
+    <p class="lead">Two pricing programs set prices every period, see each other's last prices, and learn from their own profits alone. This page runs the experiment of Calvano, Calzolari, Denicolò and Pastorello (2020) in the browser. Press <strong>run</strong> and watch what the programs learn, then what they do when one of them is forced to cut its price.</p>
+  </header>
+
+  <div class="sim-layout">
+  <aside class="sim-side">
+  <div class="panel">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Discount factor (<em>δ</em>): <span class="val" id="dVal">0.95</span></label>
+        <input type="range" id="d" min="0" max="0.99" step="0.01" value="0.95">
+        <div class="note">The weight a program puts on next period's profit. The paper's Figure 3 shows the profit gain falling as <em>δ</em> falls.</div>
+      </div>
+      <div class="ctrl">
+        <label>Learning rate (<em>α</em>): <span class="val" id="alVal">0.150</span></label>
+        <input type="range" id="al" min="0.025" max="0.25" step="0.005" value="0.15">
+        <div class="note">The share of the gap between a cell's old value and the new profit signal that one update closes.</div>
+      </div>
+      <div class="ctrl">
+        <label>Exploration decay (<em>β</em>): <span class="val" id="beVal">4 × 10⁻⁶</span></label>
+        <input type="range" id="be" min="1" max="40" step="1" value="4">
+        <div class="note">Each period a program tries a random price with probability <em>ε</em> = e<sup>−<em>β t</em></sup>. A smaller <em>β</em> keeps exploration alive longer and lengthens the run.</div>
+      </div>
+      <div class="ctrl">
+        <label>Seed: <input type="number" id="seed" min="1" max="99999" step="1" value="1" style="width:6em;font:inherit;padding:2px 4px"> &nbsp; sessions:
+          <select id="K" style="font:inherit;padding:2px 4px"><option value="1">1</option><option value="5">5</option><option value="10">10</option></select></label>
+        <div class="note">A new seed gives a new session with the same parameters. With several sessions the second chart and the cards report averages, and the first and third charts show the last session.</div>
+      </div>
+      <div class="ctrl">
+        <div style="display:flex;gap:0.4rem">
+          <button class="preset" id="runBtn" style="flex:1;text-align:center;font-weight:500">Run</button>
+          <button class="preset" id="stopBtn" style="flex:1;text-align:center">Stop</button>
+        </div>
+        <div class="note" id="status">Press run.</div>
+      </div>
+    </div>
+
+    <div class="presets">
+      <button class="preset" data-d="0.95" data-al="0.15" data-be="4">The paper's baseline</button>
+      <button class="preset" data-d="0.35" data-al="0.15" data-be="4">Impatient firms (δ = 0.35)</button>
+      <button class="preset" data-d="0.95" data-al="0.15" data-be="20">Short exploration (β = 2 × 10⁻⁵)</button>
+    </div>
+  </div>
+  </aside>
+
+  <main class="sim-main">
+
+  <div class="charts">
+  <svg id="chart1" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  <svg id="chart2" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  <svg id="chart3" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  </div>
+
+  <div class="outputs">
+    <div class="out">
+      <div class="label">Bertrand-Nash price of the one-shot game</div>
+      <div class="num" id="pnOut">–</div>
+      <div class="delta" id="pnDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Monopoly price</div>
+      <div class="num" id="pmOut">–</div>
+      <div class="delta" id="pmDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Converged price (mean of the two firms)</div>
+      <div class="num" id="pcOut">–</div>
+      <div class="delta" id="pcDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Profit gain <em>Δ</em>: share of the gap between Nash and monopoly profit captured</div>
+      <div class="num" id="dgOut">–</div>
+      <div class="delta" id="dgDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Periods to convergence</div>
+      <div class="num" id="tcOut">–</div>
+      <div class="delta" id="tcDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Deviator's discounted profit after the forced cut, against no cut</div>
+      <div class="num" id="gnOut">–</div>
+      <div class="delta" id="gnDelta">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="note-block">
+    <strong>The setup.</strong> Two firms sell differentiated products at the same cost and meet every period. Each firm's price is set by a program that sees the <strong>state</strong>, the two prices charged last period, and holds a table with one row per state and one column per price on a fifteen-point grid. In each period the program reads the row for the current state and charges the price with the highest value, or a random price with probability <em>ε</em>, which fades as the run goes on. It earns its profit and moves the value of the cell it used toward that profit plus <em>δ</em> times the best value in the new state. That is all it is told: no demand curve, no rival's profit, no instruction to punish. The run stops when neither program has changed its preferred price in any state for 100,000 periods, which is the paper's rule.
+  </div>
+
+  <div class="note-block">
+    <strong>What to notice.</strong> At the baseline the average price starts in the middle of the grid, falls toward the Bertrand-Nash level while exploration is heavy, and climbs once exploration fades, settling between the Nash and monopoly prices. The second chart repeats the experiment of Figure 4: firm 1 is forced to its short-run best response for one period, the rival answers with a cut of its own, and both prices return to the old level within about ten periods. The cut lowers the deviator's discounted profit, so it does not pay, and the punishment is temporary. A grim trigger would never survive learning, because the programs keep exploring and an accidental cut would end cooperation for good. The third chart is the learned rule itself: one row per price the rival charged last period, and in each cell the price firm 2 charges next. Press <strong>impatient firms</strong>: with <em>δ</em> = 0.35 the future is worth little, the profit gain falls, and the answer to the cut flattens, since there is little to punish with. <strong>Short exploration</strong> converges in a third of the periods with a smaller gain.
+  </div>
+
+  <div class="note-block">
+    <strong>How this maps to the paper.</strong> Calvano, Calzolari, Denicolò and Pastorello (2020, <em>American Economic Review</em>) run this game with <em>δ</em> = 0.95, <em>α</em> = 0.15, <em>β</em> = 4 × 10⁻⁶, a fifteen-price grid from 10 percent below the Bertrand-Nash price to 10 percent above the monopoly price, and one period of memory, over 1,000 sessions. Convergence takes from about 400,000 periods to several million, depending on how long exploration lasts. Their average profit gain <em>Δ</em> is 0.85. The forced cut of Figure 4 lowers the deviator's discounted profit by 3 to 4 percent (Table 3), and prices return to their old level within about ten periods. Figure 3 reports the gain falling as <em>δ</em> falls, to 16 percent at <em>δ</em> = 0.35, and footnote 26 puts the grim-trigger threshold for this demand at about 0.40, which the page computes as <span id="dstarText">–</span> from the continuous game. This page runs one to ten sessions of the same algorithm under the same rules, so its numbers sit near the paper's averages without matching them.
+  </div>
+
+  <div class="note-block">
+    <strong>Limits.</strong> One session is one draw of the random exploration, and sessions differ: most end at a fixed pair of prices, some at a cycle of two or more, and the response to the cut is averaged over the points of the cycle, as in the paper. The convergence rule stops the run once exploration has faded, so the cells of states that are rarely visited late in the run hold what the programs learned while they were still exploring, which is why the third chart is smooth on the converged path and rough away from it. The page caps a session at 20 million periods. The million periods that learning takes limit the transfer to real markets, and the assumption that each program observes the rival's price is the monitoring cost of the session's question.
+  </div>
+
+  </main>
+  </div>
+
+  <footer class="sim-footer">
+    Logit demand: <em>q<sub>i</sub></em> = e<sup>(<em>a<sub>i</sub></em> − <em>p<sub>i</sub></em>)/<em>μ</em></sup> / (Σ<sub><em>j</em></sub> e<sup>(<em>a<sub>j</sub></em> − <em>p<sub>j</sub></em>)/<em>μ</em></sup> + e<sup><em>a</em><sub>0</sub>/<em>μ</em></sup>), with <em>a<sub>i</sub></em> = 2, <em>a</em><sub>0</sub> = 0, <em>μ</em> = 1/4, and cost <em>c</em> = 1. The grid holds 15 prices from <em>p<sup>N</sup></em> − 0.1(<em>p<sup>M</sup></em> − <em>p<sup>N</sup></em>) to <em>p<sup>M</sup></em> + 0.1(<em>p<sup>M</sup></em> − <em>p<sup>N</sup></em>). Update: <em>Q</em>(<em>s</em>, <em>p</em>) ← (1 − <em>α</em>) <em>Q</em>(<em>s</em>, <em>p</em>) + <em>α</em> [<em>π</em> + <em>δ</em> max<sub><em>p'</em></sub> <em>Q</em>(<em>s'</em>, <em>p'</em>)], with <em>Q</em> initialized at the discounted profit against a rival that prices at random. Exploration <em>ε<sub>t</sub></em> = e<sup>−<em>β t</em></sup>. Profit gain <em>Δ</em> = (<em>π</em> − <em>π<sup>N</sup></em>) / (<em>π<sup>M</sup></em> − <em>π<sup>N</sup></em>), averaged over the two firms and the converged cycle. The forced deviation is firm 1's best response on the grid to the rival's pre-deviation price, for one period, from every point of the cycle; the discounted profit comparison runs 1,000 periods.
+  </footer>
+
+  <script>
+    // ── MODEL ──
+    // Q-learning duopoly of Calvano, Calzolari, Denicolò and Pastorello (2020).
+    // Shared by the node test harness and the page.
+    const AC = (function () {
+      function mulberry32(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a = (a + 0x6D2B79F5) >>> 0;
+          let t = a;
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      function share1(p1, p2, e) {
+        const x1 = Math.exp((e.a - p1) / e.mu), x2 = Math.exp((e.a - p2) / e.mu), x0 = Math.exp(e.a0 / e.mu);
+        return x1 / (x1 + x2 + x0);
+      }
+      function profit1(p1, p2, e) { return (p1 - e.c) * share1(p1, p2, e); }
+      function argmax1d(f, lo, hi) {
+        const g = (Math.sqrt(5) - 1) / 2;
+        let a = lo, b = hi, c = b - g * (b - a), d = a + g * (b - a);
+        for (let i = 0; i < 200; i++) {
+          if (f(c) < f(d)) a = c; else b = d;
+          c = b - g * (b - a); d = a + g * (b - a);
+        }
+        return (a + b) / 2;
+      }
+      function benchmarks(e) {
+        let p = e.c + 0.5;
+        for (let i = 0; i < 1000; i++) {
+          const q = p;
+          const br = argmax1d(x => profit1(x, q, e), e.c, e.c + 5);
+          p = 0.5 * p + 0.5 * br;
+          if (Math.abs(p - q) < 1e-12) break;
+        }
+        const pN = p;
+        const pM = argmax1d(x => 2 * profit1(x, x, e), e.c, e.c + 5);
+        const piN = profit1(pN, pN, e), piM = profit1(pM, pM, e);
+        const pD = argmax1d(x => profit1(x, pM, e), e.c, e.c + 5);
+        const piD = profit1(pD, pM, e);
+        return { pN, pM, piN, piM, pD, piD, deltaStar: (piD - piM) / (piD - piN) };
+      }
+      function makeEnv(e, m, xi) {
+        const bm = benchmarks(e);
+        const lo = bm.pN - xi * (bm.pM - bm.pN), hi = bm.pM + xi * (bm.pM - bm.pN);
+        const prices = new Float64Array(m);
+        for (let i = 0; i < m; i++) prices[i] = lo + (hi - lo) * i / (m - 1);
+        const PI = new Float64Array(m * m);
+        for (let i = 0; i < m; i++) for (let j = 0; j < m; j++) PI[i * m + j] = profit1(prices[i], prices[j], e);
+        return { e, m, xi, bm, prices, PI };
+      }
+      function rowArgmax(q, off, m) {
+        let best = 0, bv = q[off];
+        for (let a = 1; a < m; a++) if (q[off + a] > bv) { bv = q[off + a]; best = a; }
+        return best;
+      }
+      // opts: alpha, beta, delta, memory (0 or 1), seed, maxT, stableT, bin
+      function createSession(env, opts) {
+        const m = env.m, PI = env.PI, prices = env.prices;
+        const memory = opts.memory ? 1 : 0;
+        const S = memory ? m * m : 1;
+        const rng = mulberry32(opts.seed);
+        const delta = opts.delta, alpha = opts.alpha, beta = opts.beta;
+        const Q = [new Float64Array(S * m), new Float64Array(S * m)];
+        for (let a = 0; a < m; a++) {
+          let sum = 0;
+          for (let b = 0; b < m; b++) sum += PI[a * m + b];
+          const v = sum / ((1 - delta) * m);
+          for (let s = 0; s < S; s++) { Q[0][s * m + a] = v; Q[1][s * m + a] = v; }
+        }
+        const greedy = [new Int16Array(S), new Int16Array(S)];
+        for (let i = 0; i < 2; i++) for (let s = 0; s < S; s++) greedy[i][s] = rowArgmax(Q[i], s * m, m);
+        let state = memory ? Math.floor(rng() * S) : 0;
+        let t = 0, stable = 0, converged = false, done = false;
+        const bins = [];
+        let b1 = 0, b2 = 0, bn = 0;
+        function step() {
+          const eps = Math.exp(-beta * t);
+          const a1 = rng() < eps ? Math.floor(rng() * m) : greedy[0][state];
+          const a2 = rng() < eps ? Math.floor(rng() * m) : greedy[1][state];
+          const pi1 = PI[a1 * m + a2], pi2 = PI[a2 * m + a1];
+          const next = memory ? a1 * m + a2 : 0;
+          let changed = false;
+          let idx = state * m + a1;
+          Q[0][idx] += alpha * (pi1 + delta * Q[0][next * m + greedy[0][next]] - Q[0][idx]);
+          let g = rowArgmax(Q[0], state * m, m);
+          if (g !== greedy[0][state]) { greedy[0][state] = g; changed = true; }
+          idx = state * m + a2;
+          Q[1][idx] += alpha * (pi2 + delta * Q[1][next * m + greedy[1][next]] - Q[1][idx]);
+          g = rowArgmax(Q[1], state * m, m);
+          if (g !== greedy[1][state]) { greedy[1][state] = g; changed = true; }
+          stable = changed ? 0 : stable + 1;
+          b1 += prices[a1]; b2 += prices[a2]; bn++;
+          state = next; t++;
+          if (bn === opts.bin) { bins.push({ t, p1: b1 / bn, p2: b2 / bn, eps }); b1 = b2 = 0; bn = 0; }
+          if (stable >= opts.stableT) { converged = true; done = true; }
+          else if (t >= opts.maxT) done = true;
+        }
+        function runSteps(n) { for (let i = 0; i < n && !done; i++) step(); return done; }
+        function run(budgetMs) {
+          const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+          const end = now() + budgetMs;
+          while (!done && now() < end) for (let i = 0; i < 5000 && !done; i++) step();
+          return done;
+        }
+        // Limit play as a list of action pairs on the cycle.
+        function limit() {
+          if (!memory) return [[greedy[0][0], greedy[1][0]]];
+          let s = state;
+          const seen = new Map(), seq = [];
+          for (let i = 0; i < 100000; i++) {
+            if (seen.has(s)) return seq.slice(seen.get(s)).map(x => [Math.floor(x / m), x % m]);
+            seen.set(s, seq.length); seq.push(s);
+            s = greedy[0][s] * m + greedy[1][s];
+          }
+          return [[Math.floor(s / m), s % m]];
+        }
+        function profitGain() {
+          const cyc = limit();
+          let s1 = 0, s2 = 0;
+          for (const [a1, a2] of cyc) { s1 += PI[a1 * m + a2]; s2 += PI[a2 * m + a1]; }
+          const { piN, piM } = env.bm;
+          const d1 = (s1 / cyc.length - piN) / (piM - piN), d2 = (s2 / cyc.length - piN) / (piM - piN);
+          return { d1, d2, avg: (d1 + d2) / 2, cycle: cyc };
+        }
+        // Forced one-period deviation by firm 1 to the static best response, from every cycle point.
+        function impulse(T, H) {
+          const cyc = limit(), L = cyc.length;
+          const p1 = new Float64Array(T + 1), p2 = new Float64Array(T + 1);
+          let gain = 0;
+          for (const [a10, a20] of cyc) {
+            p1[0] += prices[a10]; p2[0] += prices[a20];
+            const s0 = memory ? a10 * m + a20 : 0;
+            let sb = s0, sd = s0, vb = 0, vd = 0, disc = 1;
+            for (let tau = 1; tau <= H; tau++) {
+              const ab1 = greedy[0][sb], ab2 = greedy[1][sb];
+              let ad1, ad2;
+              if (tau === 1) { ad1 = 0; let bv = -1; for (let i = 0; i < m; i++) { const v = PI[i * m + a20]; if (v > bv) { bv = v; ad1 = i; } } ad2 = greedy[1][sd]; }
+              else { ad1 = greedy[0][sd]; ad2 = greedy[1][sd]; }
+              vb += disc * PI[ab1 * m + ab2];
+              vd += disc * PI[ad1 * m + ad2];
+              disc *= delta;
+              if (tau <= T) { p1[tau] += prices[ad1]; p2[tau] += prices[ad2]; }
+              sb = memory ? ab1 * m + ab2 : 0;
+              sd = memory ? ad1 * m + ad2 : 0;
+            }
+            gain += (vd - vb) / vb;
+          }
+          for (let i = 0; i <= T; i++) { p1[i] /= L; p2[i] /= L; }
+          return { p1, p2, gain: gain / L, cycleLength: L };
+        }
+        function strategy(i) {
+          const out = [];
+          for (let s = 0; s < S; s++) out.push(greedy[i][s]);
+          return out;
+        }
+        return {
+          step, runSteps, run, limit, profitGain, impulse, strategy,
+          get t() { return t; }, get done() { return done; }, get converged() { return converged; },
+          get bins() { return bins; }, get state() { return state; }, get memory() { return memory; }
+        };
+      }
+      return { makeEnv, benchmarks, createSession, profit1, mulberry32 };
+    })();
+    // ── PAGE ──
+    const C = { accent: '#3f8db8', cost: '#c44545', gain: '#5e8c5e', shock: '#d97743', base: '#b8b8b8', text: '#1f2937', muted: '#6b7280', grid: '#e5e7eb' };
+    const W = 820, H = 460, m = 15;
+    const $ = id => document.getElementById(id);
+    const env = AC.makeEnv({ a: 2, a0: 0, mu: 0.25, c: 1 }, m, 0.1);
+    const P = env.prices, bm = env.bm;
+    const yLo = P[0] - 0.03, yHi = P[m - 1] + 0.03;
+    const fmtM = t => t >= 1e6 ? (t / 1e6).toFixed(2) + ' M' : Math.round(t / 1e3) + ' k';
+    const esc = s => s;
+
+    function params() {
+      return { delta: +$('d').value, alpha: +$('al').value, beta: +$('be').value * 1e-6, seed: Math.max(1, Math.floor(+$('seed').value || 1)), K: +$('K').value };
+    }
+    function showVals() {
+      $('dVal').textContent = (+$('d').value).toFixed(2);
+      $('alVal').textContent = (+$('al').value).toFixed(3);
+      $('beVal').textContent = $('be').value + ' × 10⁻⁶';
+      markPreset();
+    }
+    function markPreset() {
+      document.querySelectorAll('.presets .preset').forEach(b => {
+        const on = Math.abs(+b.dataset.d - +$('d').value) < 1e-9 && Math.abs(+b.dataset.al - +$('al').value) < 1e-9 && +b.dataset.be === +$('be').value;
+        b.classList.toggle('active', on);
+      });
+    }
+
+    // ── axes shared by the two price charts ──
+    function priceAxes(M, xMax, xLabel, xTick, xFmt) {
+      const PW = W - M.left - M.right, PH = H - M.top - M.bottom, axisY = M.top + PH;
+      const x = v => M.left + (v / xMax) * PW;
+      const y = v => M.top + (1 - (v - yLo) / (yHi - yLo)) * PH;
+      let s = '';
+      for (let v = 1.45; v <= yHi; v += 0.1) s += `<line x1="${M.left}" y1="${y(v)}" x2="${M.left + PW}" y2="${y(v)}" stroke="${C.grid}" />`;
+      s += `<line x1="${M.left}" y1="${y(bm.pN)}" x2="${M.left + PW}" y2="${y(bm.pN)}" stroke="${C.cost}" stroke-width="1.2" stroke-dasharray="5 4" />`;
+      s += `<text x="${M.left + PW - 6}" y="${y(bm.pN) + 14}" text-anchor="end" font-size="11" fill="${C.cost}">Bertrand-Nash price ${bm.pN.toFixed(2)}</text>`;
+      s += `<line x1="${M.left}" y1="${y(bm.pM)}" x2="${M.left + PW}" y2="${y(bm.pM)}" stroke="${C.gain}" stroke-width="1.2" stroke-dasharray="5 4" />`;
+      s += `<text x="${M.left + PW - 6}" y="${y(bm.pM) - 6}" text-anchor="end" font-size="11" fill="${C.gain}">monopoly price ${bm.pM.toFixed(2)}</text>`;
+      s += `<line x1="${M.left}" y1="${axisY}" x2="${M.left + PW}" y2="${axisY}" stroke="${C.muted}" />`;
+      s += `<line x1="${M.left}" y1="${M.top}" x2="${M.left}" y2="${axisY}" stroke="${C.muted}" />`;
+      for (let v = 0; v <= xMax + 1e-9; v += xTick) s += `<text x="${x(v)}" y="${axisY + 16}" text-anchor="middle" font-size="11" fill="${C.muted}">${xFmt(v)}</text>`;
+      for (let v = 1.5; v <= yHi; v += 0.1) s += `<text x="${M.left - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="${C.muted}">${v.toFixed(1)}</text>`;
+      s += `<text x="${M.left + PW / 2}" y="${axisY + 38}" text-anchor="middle" font-size="13" fill="${C.text}">${xLabel}</text>`;
+      s += `<text x="${M.left - 44}" y="${M.top + PH / 2}" text-anchor="middle" font-size="13" fill="${C.text}" transform="rotate(-90 ${M.left - 44} ${M.top + PH / 2})">price</text>`;
+      return { s, x, y, PW, PH, axisY };
+    }
+    const poly = (pts, color, width, dash) => `<polyline points="${pts.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' ')}" fill="none" stroke="${color}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ''} stroke-linejoin="round" />`;
+
+    // ── Chart 1: the learning path ──
+    function renderLearning(s, j) {
+      const M = { top: 40, right: 60, bottom: 62, left: 64 };
+      const bins = s.bins;
+      const tEnd = Math.max(s.t, 500000);
+      const xMax = Math.ceil(tEnd / 500000) * 500000;
+      const tick = xMax <= 2e6 ? 500000 : xMax <= 5e6 ? 1e6 : 5e6;
+      const ax = priceAxes(M, xMax, 'periods', tick, v => v === 0 ? '0' : (v / 1e6).toFixed(1) + ' M');
+      let str = ax.s;
+      const yE = e => M.top + (1 - e) * ax.PH;
+      if (bins.length > 1) {
+        str += poly(bins.map(b => [ax.x(b.t), yE(b.eps)]), C.base, 1.6, '4 3');
+        str += poly(bins.map(b => [ax.x(b.t), ax.y(b.p1)]), C.accent, 2.4);
+        str += poly(bins.map(b => [ax.x(b.t), ax.y(b.p2)]), C.shock, 2.4);
+      }
+      // right axis for ε
+      const xr = M.left + ax.PW;
+      for (let e = 0; e <= 1.0001; e += 0.5) str += `<text x="${xr + 8}" y="${yE(e) + 4}" font-size="11" fill="${C.muted}">${e.toFixed(1)}</text>`;
+      str += `<text x="${xr + 46}" y="${M.top + ax.PH / 2}" text-anchor="middle" font-size="12" fill="${C.muted}" transform="rotate(90 ${xr + 46} ${M.top + ax.PH / 2})">exploration rate ε</text>`;
+      const title = j ? `Session ${j.k + 1} of ${j.p.K}: average price in each block of 10,000 periods` : 'Average price in each block of 10,000 periods';
+      str += `<text x="${M.left + 12}" y="${M.top - 14}" font-size="13" font-weight="600" fill="${C.text}">${title}</text>`;
+      let lx = M.left + 70; const ly = M.top + 14;
+      str += `<rect x="${lx - 8}" y="${ly - 9}" width="420" height="18" fill="#ffffff" opacity="0.9" />`;
+      const item = (color, dash, label, width) => { str += `<line x1="${lx}" y1="${ly}" x2="${lx + 22}" y2="${ly}" stroke="${color}" stroke-width="2.4" ${dash ? `stroke-dasharray="${dash}"` : ''} /><text x="${lx + 28}" y="${ly + 4}" font-size="12" fill="${C.text}">${label}</text>`; lx += width; };
+      item(C.accent, null, 'firm 1', 84);
+      item(C.shock, null, 'firm 2', 84);
+      item(C.base, '4 3', 'exploration rate ε (right axis)', 0);
+      $('chart1').innerHTML = str;
+    }
+
+    // ── Chart 2: the response to a forced cut ──
+    function renderResponse(j) {
+      const M = { top: 40, right: 24, bottom: 62, left: 64 };
+      const T = 15, R = j.results, K = R.length;
+      const ax = priceAxes(M, T, 'periods after the forced cut (the cut is in period 1)', 1, v => v);
+      let str = ax.s;
+      const p1 = new Float64Array(T + 1), p2 = new Float64Array(T + 1);
+      for (const r of R) for (let i = 0; i <= T; i++) { p1[i] += r.ir.p1[i] / K; p2[i] += r.ir.p2[i] / K; }
+      const pre = (p1[0] + p2[0]) / 2;
+      str += `<line x1="${M.left}" y1="${ax.y(pre)}" x2="${M.left + ax.PW}" y2="${ax.y(pre)}" stroke="${C.muted}" stroke-width="1" stroke-dasharray="2 3" />`;
+      str += `<text x="${M.left + 6}" y="${ax.y(pre) - 6}" font-size="11" fill="${C.muted}">converged price ${pre.toFixed(2)}</text>`;
+      str += `<line x1="${ax.x(1)}" y1="${M.top}" x2="${ax.x(1)}" y2="${ax.axisY}" stroke="${C.text}" stroke-width="1" stroke-dasharray="4 3" />`;
+      str += `<text x="${ax.x(1) + 5}" y="${ax.axisY - 10}" font-size="11" fill="${C.text}">firm 1 is forced to its best response for one period</text>`;
+      const pts = arr => Array.from(arr).map((v, t) => [ax.x(t), ax.y(v)]);
+      str += poly(pts(p2), C.shock, 3);
+      str += poly(pts(p1), C.accent, 3);
+      for (let t = 0; t <= T; t++) { str += `<circle cx="${ax.x(t)}" cy="${ax.y(p2[t])}" r="3.5" fill="${C.shock}" /><circle cx="${ax.x(t)}" cy="${ax.y(p1[t])}" r="3.5" fill="${C.accent}" />`; }
+      const gain = R.reduce((a, r) => a + r.ir.gain, 0) / K;
+      const title = K === 1 ? 'Prices after firm 1 is forced to cut for one period' : `Prices after firm 1 is forced to cut for one period, average of ${K} sessions`;
+      str += `<text x="${M.left + 12}" y="${M.top - 14}" font-size="13" font-weight="600" fill="${C.text}">${title}</text>`;
+      let lx = M.left + 12; const ly = M.top + 14;
+      const item = (color, label, width) => { str += `<line x1="${lx}" y1="${ly}" x2="${lx + 22}" y2="${ly}" stroke="${color}" stroke-width="3" /><text x="${lx + 28}" y="${ly + 4}" font-size="12" fill="${C.text}">${label}</text>`; lx += width; };
+      item(C.accent, 'firm 1, the forced deviator', 196);
+      item(C.shock, 'firm 2, following its learned rule', 0);
+      str += `<text x="${M.left + 8}" y="${ax.axisY - 26}" font-size="12" font-weight="600" fill="${gain < 0 ? C.cost : C.gain}">deviator's discounted profit against no cut: ${(100 * gain).toFixed(1)}%</text>`;
+      $('chart2').innerHTML = str;
+    }
+
+    // ── Chart 3: firm 2's learned rule ──
+    function mix(f) {
+      const a = [255, 255, 255], b = [63, 141, 184];
+      return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * f)).join(',')})`;
+    }
+    function renderStrategy(j) {
+      const r = j.results[j.results.length - 1];
+      const g = r.strategy;
+      const M = { top: 40, right: 24, bottom: 62, left: 64 };
+      const PW = W - M.left - M.right, PH = H - M.top - M.bottom, axisY = M.top + PH;
+      const cw = PW / m, ch = PH / m;
+      const onPath = new Set(r.pg.cycle.map(([a1, a2]) => a1 * m + a2));
+      let str = '';
+      for (let a1 = 0; a1 < m; a1++) for (let a2 = 0; a2 < m; a2++) {
+        const a = g[a1 * m + a2], f = a / (m - 1);
+        const x = M.left + a2 * cw, y = M.top + (m - 1 - a1) * ch;
+        str += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" fill="${mix(f)}" stroke="#ffffff" stroke-width="1" />`;
+        str += `<text x="${x + cw / 2}" y="${y + ch / 2 + 3.5}" text-anchor="middle" font-size="10" fill="${f > 0.6 ? '#ffffff' : C.text}">${P[a].toFixed(2)}</text>`;
+      }
+      for (const s of onPath) {
+        const a1 = Math.floor(s / m), a2 = s % m;
+        str += `<rect x="${M.left + a2 * cw + 1}" y="${M.top + (m - 1 - a1) * ch + 1}" width="${cw - 2}" height="${ch - 2}" fill="none" stroke="${C.text}" stroke-width="2" />`;
+      }
+      for (let i = 0; i < m; i++) {
+        str += `<text x="${M.left + (i + 0.5) * cw}" y="${axisY + 16}" text-anchor="middle" font-size="10" fill="${C.muted}">${P[i].toFixed(2)}</text>`;
+        str += `<text x="${M.left - 6}" y="${M.top + (m - 1 - i + 0.5) * ch + 3.5}" text-anchor="end" font-size="10" fill="${C.muted}">${P[i].toFixed(2)}</text>`;
+      }
+      str += `<text x="${M.left + PW / 2}" y="${axisY + 38}" text-anchor="middle" font-size="13" fill="${C.text}">firm 2's own price last period</text>`;
+      str += `<text x="${M.left - 46}" y="${M.top + PH / 2}" text-anchor="middle" font-size="13" fill="${C.text}" transform="rotate(-90 ${M.left - 46} ${M.top + PH / 2})">firm 1's price last period</text>`;
+      str += `<text x="${M.left + 12}" y="${M.top - 14}" font-size="13" font-weight="600" fill="${C.text}">Firm 2's learned rule: the price it charges after each pair of last prices (boxed: the converged path)</text>`;
+      $('chart3').innerHTML = str;
+    }
+
+    // ── Cards ──
+    function setCard(id, num, delta, cls) {
+      $(id + 'Out').textContent = num;
+      const d = $(id + 'Delta'); d.textContent = delta; d.className = 'delta' + (cls ? ' ' + cls : '');
+    }
+    function renderOutputs(j) {
+      const R = j.results, K = R.length;
+      const mean = f => R.reduce((a, r) => a + f(r), 0) / K;
+      const pc = mean(r => { const c = r.pg.cycle; let s = 0; for (const [a1, a2] of c) s += (P[a1] + P[a2]) / 2; return s / c.length; });
+      const fixed = R.filter(r => r.pg.cycle.length === 1).length;
+      const last = R[K - 1];
+      setCard('pc', pc.toFixed(2), K === 1 ? (last.pg.cycle.length === 1 ? 'a fixed pair of prices' : `a cycle of ${last.pg.cycle.length} price pairs`) : `${fixed} of ${K} sessions end at a fixed pair; ${K - fixed} at a cycle`);
+      const dg = mean(r => r.pg.avg);
+      setCard('dg', dg.toFixed(2), `the paper's baseline average is 0.85`, dg > 0.5 ? 'up' : '');
+      const tc = mean(r => r.t), allConv = R.every(r => r.converged);
+      setCard('tc', fmtM(tc), allConv ? '100,000 periods without a change in either rule' : 'some sessions hit the cap without converging', allConv ? '' : 'down');
+      const gn = mean(r => r.ir.gain);
+      setCard('gn', (100 * gn).toFixed(1) + '%', `Table 3 of the paper reports −3 to −4 percent`, gn < 0 ? 'down' : 'up');
+    }
+
+    // ── Run loop ──
+    let job = null;
+    function status(text) { $('status').textContent = text; }
+    function startRun() {
+      if (job) job.stop = true;
+      const p = params();
+      job = { p, k: 0, results: [], stop: false, perFrame: p.K === 1 ? 25000 : 100000 };
+      nextSession();
+    }
+    function nextSession() {
+      const j = job;
+      j.session = AC.createSession(env, { alpha: j.p.alpha, beta: j.p.beta, delta: j.p.delta, memory: 1, seed: j.p.seed * 1000 + j.k, maxT: 20e6, stableT: 100000, bin: 10000 });
+      setTimeout(frame, 0);
+    }
+    function frame() {
+      const j = job;
+      if (!j || j.stop) return;
+      const s = j.session;
+      s.runSteps(j.perFrame);
+      renderLearning(s, j);
+      if (!s.done) {
+        status(`Session ${j.k + 1} of ${j.p.K}: ${fmtM(s.t)} periods, exploration rate ${(100 * Math.exp(-j.p.beta * s.t)).toFixed(1)}%`);
+        setTimeout(frame, 0);
+        return;
+      }
+      const pg = s.profitGain(), ir = s.impulse(15, 1000);
+      j.results.push({ t: s.t, converged: s.converged, pg, ir, strategy: s.strategy(1) });
+      j.k++;
+      renderResponse(j); renderStrategy(j); renderOutputs(j);
+      if (j.k < j.p.K) { nextSession(); return; }
+      const last = j.results[j.results.length - 1];
+      status(j.p.K === 1
+        ? (last.converged ? `Converged after ${fmtM(last.t)} periods: neither program changed its preferred price in any state for 100,000 periods.` : `Stopped at the cap of 20 M periods without meeting the convergence rule.`)
+        : `${j.p.K} sessions done. The second chart and the cards are averages; the first and third charts show the last session.`);
+    }
+
+    // ── Wiring ──
+    ['d', 'al', 'be'].forEach(id => $(id).addEventListener('input', showVals));
+    $('runBtn').addEventListener('click', startRun);
+    $('stopBtn').addEventListener('click', () => { if (job) { job.stop = true; status('Stopped. Press run to start again.'); } });
+    document.querySelectorAll('.presets .preset').forEach(b => b.addEventListener('click', () => {
+      $('d').value = b.dataset.d; $('al').value = b.dataset.al; $('be').value = b.dataset.be; showVals(); startRun();
+    }));
+    setCard('pn', bm.pN.toFixed(2), `profit ${bm.piN.toFixed(3)} per firm and period`);
+    setCard('pm', bm.pM.toFixed(2), `profit ${bm.piM.toFixed(3)} per firm and period`);
+    $('dstarText').textContent = bm.deltaStar.toFixed(2);
+    showVals();
+    renderLearning({ bins: [], t: 0 }, null);
+    startRun();
+  </script>
+</body>
+</html>
