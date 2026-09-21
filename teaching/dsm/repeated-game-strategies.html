@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Repeated game strategies: which rule earns most against the rival's</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="wide">
+  <header class="sim-header">
+    <div class="course">Digital Strategy and Markets · Week 4</div>
+    <h1>The force that shifts: <em>the value of the future when rivals meet again sooner</em></h1>
+    <p class="lead">Two agencies play the commission game of the slides year after year. Choose a rule for each, set how much they value next year's profit, and see which rule earns most against the rival's, and at which discount factor the answer changes.</p>
+  </header>
+
+  <div class="sim-layout">
+  <aside class="sim-side">
+  <div class="panel">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Firm A's strategy</label>
+        <select id="sA" style="width:100%;font:inherit;padding:4px 6px">
+          <option value="high">always High (cooperate)</option>
+          <option value="low" selected>always Low (cut)</option>
+          <option value="tft">tit-for-tat</option>
+          <option value="grim">grim trigger</option>
+          <option value="finite">finite punishment (T periods)</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Firm B's strategy</label>
+        <select id="sB" style="width:100%;font:inherit;padding:4px 6px">
+          <option value="high">always High (cooperate)</option>
+          <option value="low">always Low (cut)</option>
+          <option value="tft">tit-for-tat</option>
+          <option value="grim" selected>grim trigger</option>
+          <option value="finite">finite punishment (T periods)</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Discount factor (<em>δ</em>): <span class="val" id="dVal">0.80</span></label>
+        <input type="range" id="d" min="0" max="0.99" step="0.01" value="0.80">
+        <div class="note">A profit next year is worth <em>δ</em> times a profit today. Rivals that reprice every hour meet again sooner, which is a <em>δ</em> closer to 1.</div>
+      </div>
+      <div class="ctrl">
+        <label>Punishment length (<em>T</em> periods): <span class="val" id="tVal">3</span></label>
+        <input type="range" id="t" min="1" max="20" step="1" value="3">
+        <div class="note">Used by finite punishment: after any cut, both firms play Low for <em>T</em> periods, then return to High.</div>
+      </div>
+      <div class="ctrl">
+        <label>Chance of a mistake each period (<em>p</em>): <span class="val" id="pVal">0.00</span></label>
+        <input type="range" id="p" min="0" max="0.20" step="0.01" value="0">
+        <div class="note">With <em>p</em> above zero each firm plays the other action by accident with that probability. Values then average 600 runs, with the same accidents for every option.</div>
+      </div>
+      <div class="ctrl">
+        <label>Yearly profits, in millions</label>
+        <div class="note" style="display:grid;grid-template-columns:1fr auto;gap:0.25rem 0.5rem;align-items:center">
+          <span>both High</span><input type="number" id="rR" value="10" step="1" style="width:4.5em;font:inherit;padding:2px 4px">
+          <span>High while the rival cuts</span><input type="number" id="rS" value="4" step="1" style="width:4.5em;font:inherit;padding:2px 4px">
+          <span>cut while the rival keeps High</span><input type="number" id="rT" value="14" step="1" style="width:4.5em;font:inherit;padding:2px 4px">
+          <span>both Low</span><input type="number" id="rP" value="6" step="1" style="width:4.5em;font:inherit;padding:2px 4px">
+        </div>
+      </div>
+      <div class="ctrl">
+        <label>Forced actions: <span class="val" id="forcedCount">none</span></label>
+        <div style="display:flex;gap:0.4rem;align-items:center">
+          <button class="preset" id="clearForced" style="text-align:center">Release all</button>
+        </div>
+        <div class="note">Click a rectangle in the first chart to force that firm's action in that year, whatever its rule; click it again to release it. The firm's rule with its forced actions is its <em>actual play</em>, drawn as a dark line and bar next to the five clean rules, which face the rival as it actually behaves.</div>
+      </div>
+      <div class="ctrl">
+        <label>Last chart: value by <em>δ</em> for
+          <select id="cf" style="font:inherit;padding:2px 4px"><option value="A">firm A</option><option value="B">firm B</option></select></label>
+      </div>
+    </div>
+
+    <div class="presets">
+      <button class="preset" data-sa="low" data-sb="grim" data-d="0.80" data-t="3" data-p="0">The slide: a cut against grim trigger</button>
+      <button class="preset" data-sa="low" data-sb="finite" data-d="0.80" data-t="3" data-p="0">A cut against finite punishment</button>
+      <button class="preset" data-sa="grim" data-sb="grim" data-d="0.90" data-t="3" data-p="0.05">Two grim triggers, with mistakes</button>
+      <button class="preset" data-sa="finite" data-sb="finite" data-d="0.90" data-t="3" data-p="0.05">Two finite punishments, with mistakes</button>
+      <button class="preset" data-sa="tft" data-sb="tft" data-d="0.90" data-t="3" data-p="0.05">Two tit-for-tats, with mistakes</button>
+    </div>
+  </div>
+  </aside>
+
+  <main class="sim-main">
+
+  <div class="charts">
+  <svg id="chart1" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  <svg id="chart4" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  <svg id="chart2" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  <svg id="chart3" class="chart" width="820" height="460" viewBox="0 0 820 460"></svg>
+  </div>
+
+  <div class="outputs">
+    <div class="out">
+      <div class="label">Firm A: profit per year, discounted</div>
+      <div class="num" id="vaOut">–</div>
+      <div class="delta" id="vaDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Firm B: profit per year, discounted</div>
+      <div class="num" id="vbOut">–</div>
+      <div class="delta" id="vbDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Is the pair of strategies stable?</div>
+      <div class="num" id="stOut">–</div>
+      <div class="delta" id="stDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Firm A's best rule against firm B's actual play</div>
+      <div class="num" id="baOut">–</div>
+      <div class="delta" id="baDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Firm B's best rule against firm A's actual play</div>
+      <div class="num" id="bbOut">–</div>
+      <div class="delta" id="bbDelta">&nbsp;</div>
+    </div>
+    <div class="out">
+      <div class="label">Smallest <em>δ</em> at which keeping High beats cutting</div>
+      <div class="num" id="crOut">–</div>
+      <div class="delta" id="crDelta">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="note-block">
+    <strong>The setup.</strong> Two agencies play the commission game of the slides every year: both High earns 10 each, both Low earns 6 each, and an agency that cuts to Low while the rival keeps High earns 14 against the rival's 4. Choose a rule for each firm. <strong>Always High</strong> and <strong>always Low</strong> ignore the history. <strong>Tit-for-tat</strong> copies the rival's action of the previous year. <strong>Grim trigger</strong> plays High until anyone has played Low, then Low forever. <strong>Finite punishment</strong> plays Low for <em>T</em> years after any cut on the cooperative path, then returns to High. A firm values a profit next year at <em>δ</em> times a profit today, and its present value is the discounted sum over the years. The page reports it per year, as (1 − <em>δ</em>) times the present value, so the numbers stay between 4 and 14 whatever <em>δ</em> is. The first chart plays the two rules against each other, and a click on any of its rectangles forces that firm's action in that year, which is the forced deviation of the paper's Figure 4 applied to the classical rules; the second chart draws the value of each of the five clean rules for a firm as <em>δ</em> changes, against the rival as it actually behaves, with the firm's actual play as a dark line; the third and fourth rank the same five rules and the actual play of each firm at the current <em>δ</em>. Without forced actions the actual play sits on the chosen rule's line.
+  </div>
+
+  <div class="note-block">
+    <strong>What to notice.</strong> Start with the first preset, a cut against grim trigger at <em>δ</em> = 0.80. Firm A earns 14 once and 6 ever after, 7.6 per year, against the 10 it would earn by keeping High. The second chart shows why: the always Low line crosses the always High line at <em>δ</em> = 0.5, which is the board calculation of the slides. Drag <em>δ</em> below 0.5 and cutting becomes A's best option. Against finite punishment with <em>T</em> = 3 the crossing moves to 0.54, and with <em>T</em> = 1 the lines never cross: a one-year punishment costs the cutter 4 next year for a gain of 4 today, and no <em>δ</em> below 1 makes that a loss. Then the mistakes. With <strong>two grim triggers</strong> and a 5 percent chance of an accidental cut, cooperation ends for good within a few years, and both firms average about 8 per year, where steady cooperation gives 10. <strong>Two finite punishments</strong> lose a few years after each accident and recover. <strong>Two tit-for-tats</strong> echo an accident back and forth, one firm High while the other is Low, until a second accident ends the echo. This is the reason the programs in Calvano et al. learn a punishment that ends: they keep experimenting, and a rule that never forgives would ruin both.
+  </div>
+
+  <div class="note-block">
+    <strong>How this maps to the slides and the paper.</strong> The board calculation on the slide about future losses compares 10/(1 − <em>δ</em>) with 14 + 6<em>δ</em>/(1 − <em>δ</em>) and gives <em>δ</em> ≥ 1/2. The first preset is that comparison, and the crossing in the second chart is its picture. The slide on classical strategies names the three history-dependent rules used here. Calvano, Calzolari, Denicolò and Pastorello (2020) find that their programs learn none of these rules exactly: the punishment they learn lasts a few periods and prices recover gradually, which sits between tit-for-tat and finite punishment on this page, and a grim trigger never appears in their sessions. Axelrod's tournaments made tit-for-tat famous, and the echo in the last preset is its known weakness when players make mistakes.
+  </div>
+
+  <div class="note-block">
+    <strong>Limits.</strong> The menu has five rules, so "best" means best among them. Against tit-for-tat, for instance, alternating Low and High beats every rule on the menu when <em>δ</em> is below about 0.68. Finite punishment here is a public phase: both firms count the same <em>T</em> years after any cut, including an accidental one of their own, which is how the rule is written in the theory. Mistakes hit both firms at the same rate. The game has two prices, where the Q-learning page has fifteen, and the rules here are given to the firms, where the programs on that page learn theirs.
+  </div>
+
+  </main>
+  </div>
+
+  <footer class="sim-footer">
+    Present value PV = Σ<sub><em>t</em></sub> <em>δ</em><sup><em>t</em></sup> <em>u<sub>t</sub></em>, summed until <em>δ</em><sup><em>t</em></sup> falls below 10⁻⁹ and at most over 3,000 years; the per-year value is (1 − <em>δ</em>) PV. Against grim trigger, keeping High beats cutting when 10/(1 − <em>δ</em>) ≥ 14 + 6<em>δ</em>/(1 − <em>δ</em>), so <em>δ</em> ≥ (14 − 10)/(14 − 6) = 0.5 with the default profits. Against finite punishment of <em>T</em> years the cutter earns 14 once and 6 for <em>T</em> years, again and again, so keeping High wins when 10/(1 − <em>δ</em>) ≥ [14 + 6(<em>δ</em> + … + <em>δ<sup>T</sup></em>)]/(1 − <em>δ</em><sup><em>T</em>+1</sup>), which the page solves by search on a grid of 0.002. With mistakes, values average 600 runs that share the same random accidents across options (common random numbers), and the first chart shows the first of those runs.
+  </footer>
+
+  <script>
+    // ── MODEL ──
+    // Repeated commission game with a menu of five strategies.
+    const RG = (function () {
+      function mulberry32(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a = (a + 0x6D2B79F5) >>> 0;
+          let t = a;
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      const STRATS = ['high', 'low', 'tft', 'grim', 'finite'];
+      const NAMES = { high: 'always High', low: 'always Low', tft: 'tit-for-tat', grim: 'grim trigger', finite: 'finite punishment' };
+      // pay[own][rival]: 0 = High, 1 = Low
+      function payoffs(R, S, Tm, P) { return [[R, S], [Tm, P]]; }
+      function horizon(delta, cap) { return delta <= 0 ? 1 : Math.min(cap, Math.ceil(Math.log(1e-9) / Math.log(delta))); }
+      function intended(s, anyD, phaseLeft, oppLast) {
+        if (s === 'high') return 0;
+        if (s === 'low') return 1;
+        if (s === 'tft') return oppLast;
+        if (s === 'grim') return anyD ? 1 : 0;
+        return phaseLeft > 0 ? 1 : 0;
+      }
+      // o: { delta, T, p, pay, forced }. One run of H periods; records the first `record` periods.
+      // o.forced = { A: {year: action}, B: {year: action} } overrides a firm's action in a year, whatever its rule.
+      function play(sA, sB, o, rng, H, record) {
+        let anyD = false, phaseLeft = 0, lastA = 0, lastB = 0, pvA = 0, pvB = 0, disc = 1;
+        const fA = o.forced ? o.forced.A : null, fB = o.forced ? o.forced.B : null;
+        const rec = record ? { aA: [], aB: [], mA: [], mB: [], kA: [], kB: [], uA: [], uB: [] } : null;
+        for (let t = 0; t < H; t++) {
+          let aA = intended(sA, anyD, phaseLeft, lastB), aB = intended(sB, anyD, phaseLeft, lastA);
+          let mA = false, mB = false;
+          if (o.p > 0) {
+            if (rng() < o.p) { aA = 1 - aA; mA = true; }
+            if (rng() < o.p) { aB = 1 - aB; mB = true; }
+          }
+          let kA = false, kB = false;
+          if (fA && fA[t] !== undefined) { aA = fA[t]; mA = false; kA = true; }
+          if (fB && fB[t] !== undefined) { aB = fB[t]; mB = false; kB = true; }
+          const uA = o.pay[aA][aB], uB = o.pay[aB][aA];
+          pvA += disc * uA; pvB += disc * uB; disc *= o.delta;
+          if (rec && t < record) { rec.aA.push(aA); rec.aB.push(aB); rec.mA.push(mA); rec.mB.push(mB); rec.kA.push(kA); rec.kB.push(kB); rec.uA.push(uA); rec.uB.push(uB); }
+          if (aA === 1 || aB === 1) anyD = true;
+          if (phaseLeft > 0) phaseLeft--;
+          else if (aA === 1 || aB === 1) phaseLeft = o.T;
+          lastA = aA; lastB = aB;
+        }
+        return { pvA, pvB, rec };
+      }
+      // Expected present values, averaged over runs when mistakes are possible (common random numbers).
+      function value(sA, sB, o, runs, seed) {
+        const H = horizon(o.delta, 3000);
+        if (!(o.p > 0)) runs = 1;
+        let vA = 0, vB = 0;
+        for (let r = 0; r < runs; r++) {
+          const res = play(sA, sB, o, mulberry32(seed + r), H, 0);
+          vA += res.pvA; vB += res.pvB;
+        }
+        return { pvA: vA / runs, pvB: vB / runs };
+      }
+      // Smallest delta at which always High beats always Low against the rule sOpp, without mistakes or forced actions.
+      function critical(sOpp, o) {
+        for (let d = 0; d <= 0.99 + 1e-9; d += 0.002) {
+          const oo = { delta: d, T: o.T, p: 0, pay: o.pay };
+          const h = value('high', sOpp, oo, 1, 1).pvA, l = value('low', sOpp, oo, 1, 1).pvA;
+          if (h >= l - 1e-6) return Math.round(d * 1000) / 1000;
+        }
+        return null;
+      }
+      return { mulberry32, STRATS, NAMES, payoffs, horizon, play, value, critical };
+    })();
+    // ── PAGE ──
+    const C = { accent: '#3f8db8', cost: '#c44545', gain: '#5e8c5e', shock: '#d97743', base: '#b8b8b8', text: '#1f2937', muted: '#6b7280', grid: '#e5e7eb' };
+    const W = 820, H = 460;
+    const $ = id => document.getElementById(id);
+    const SC = { high: '#5e8c5e', low: '#c44545', tft: '#3f8db8', grim: '#7b5ea7', finite: '#d97743' };
+    const SD = { high: null, low: null, tft: '9 5', grim: null, finite: '2 4' };
+    const SW = { high: 5, low: 3, tft: 3, grim: 2.5, finite: 3 };
+    const ACT = '#1f2937';
+    const ORDER = ['high', 'grim', 'tft', 'finite', 'low'];
+    const SEED = 11, RUNS = 600, RUNS_CHART = 200;
+    const forced = { A: {}, B: {} };
+    const forcedCount = () => Object.keys(forced.A).length + Object.keys(forced.B).length;
+
+    function params() {
+      const R = +$('rR').value, S = +$('rS').value, Tm = +$('rT').value, P = +$('rP').value;
+      return { sA: $('sA').value, sB: $('sB').value, delta: +$('d').value, T: +$('t').value, p: +$('p').value, pay: RG.payoffs(R, S, Tm, P), R, S, Tm, P, chartFirm: $('cf').value, forced: { A: forced.A, B: forced.B } };
+    }
+    // The environment a firm's clean rule faces: its own forced actions removed, the rival's kept.
+    function cleanFor(firm) { return firm === 'A' ? { A: {}, B: forced.B } : { A: forced.A, B: {} };
+    }
+    const label = (s, T) => s === 'finite' ? `finite punishment (T = ${T})` : RG.NAMES[s];
+    function showVals() {
+      const fc = forcedCount();
+      $('forcedCount').textContent = fc === 0 ? 'none' : `${fc} (A: ${Object.keys(forced.A).map(t => +t + 1).join(', ') || '–'}; B: ${Object.keys(forced.B).map(t => +t + 1).join(', ') || '–'})`;
+      $('dVal').textContent = (+$('d').value).toFixed(2);
+      $('tVal').textContent = $('t').value;
+      $('pVal').textContent = (+$('p').value).toFixed(2);
+      document.querySelectorAll('.presets .preset').forEach(b => {
+        const on = b.dataset.sa === $('sA').value && b.dataset.sb === $('sB').value && Math.abs(+b.dataset.d - +$('d').value) < 1e-9 && +b.dataset.t === +$('t').value && Math.abs(+b.dataset.p - +$('p').value) < 1e-9;
+        b.classList.toggle('active', on);
+      });
+    }
+    const poly = (pts, color, width, dash) => `<polyline points="${pts.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' ')}" fill="none" stroke="${color}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ''} stroke-linejoin="round" />`;
+
+    // ── Chart 1: the play path ──
+    function renderPath(o, rec, pvA, pvB) {
+      const M = { top: 40, right: 24, bottom: 62, left: 64 };
+      const n = 24, PW = W - M.left - M.right, cw = PW / n, ch = 46;
+      const rows = [{ key: 'A', a: rec.aA, m: rec.mA, k: rec.kA, u: rec.uA, y: M.top + 8 }, { key: 'B', a: rec.aB, m: rec.mB, k: rec.kB, u: rec.uB, y: M.top + 8 + ch + 10 }];
+      let s = '';
+      for (const r of rows) {
+        s += `<text x="${M.left - 10}" y="${r.y + ch / 2 + 5}" text-anchor="end" font-size="13" font-weight="600" fill="${C.text}">Firm ${r.key}</text>`;
+        for (let t = 0; t < n; t++) {
+          const x = M.left + t * cw, low = r.a[t] === 1;
+          s += `<g data-firm="${r.key}" data-year="${t}" style="cursor:pointer"><title>Firm ${r.key}, year ${t + 1}: click to ${r.k[t] ? 'release' : 'force ' + (low ? 'High' : 'Low')}</title>`;
+          s += `<rect x="${x + 1}" y="${r.y}" width="${cw - 2}" height="${ch}" fill="${low ? C.cost : C.accent}" opacity="${low ? 0.75 : 0.7}" />`;
+          if (r.k[t]) s += `<rect x="${x + 2}" y="${r.y + 1}" width="${cw - 4}" height="${ch - 2}" fill="none" stroke="${C.text}" stroke-width="2.5" />`;
+          s += `<text x="${x + cw / 2}" y="${r.y + 17}" text-anchor="middle" font-size="9.5" fill="#ffffff" pointer-events="none">${low ? 'Low' : 'High'}</text>`;
+          s += `<text x="${x + cw / 2}" y="${r.y + 36}" text-anchor="middle" font-size="12" font-weight="600" fill="#ffffff" pointer-events="none">${r.u[t]}</text>`;
+          if (r.m[t]) s += `<circle cx="${x + cw - 6}" cy="${r.y + 6}" r="3.2" fill="#ffffff" stroke="${C.text}" stroke-width="1.2" pointer-events="none" />`;
+          s += `</g>`;
+        }
+      }
+      const yAxisTop = rows[1].y + ch + 26;
+      for (let t = 0; t < n; t++) s += `<text x="${M.left + (t + 0.5) * cw}" y="${rows[1].y + ch + 14}" text-anchor="middle" font-size="10" fill="${C.muted}">${t + 1}</text>`;
+      // running present values in the lower panel
+      const PH2 = H - M.bottom - yAxisTop - 10, y0 = yAxisTop + 10, axisY = y0 + PH2;
+      let ra = 0, rb = 0, disc = 1; const cA = [], cB = [];
+      for (let t = 0; t < n; t++) { ra += disc * rec.uA[t]; rb += disc * rec.uB[t]; disc *= o.delta; cA.push(ra); cB.push(rb); }
+      const yMax = Math.max(cA[n - 1], cB[n - 1], 1) * 1.08;
+      const x = t => M.left + (t + 0.5) * cw, y = v => y0 + (1 - v / yMax) * PH2;
+      for (let k = 1; k <= 3; k++) s += `<line x1="${M.left}" y1="${y(yMax * k / 4)}" x2="${M.left + PW}" y2="${y(yMax * k / 4)}" stroke="${C.grid}" />`;
+      s += poly(cA.map((v, t) => [x(t), y(v)]), C.text, 2.4);
+      s += poly(cB.map((v, t) => [x(t), y(v)]), C.shock, 2.4, '7 4');
+      s += `<text x="${x(n - 1) - 4}" y="${y(cA[n - 1]) - 7}" text-anchor="end" font-size="11" fill="${C.text}">A: ${cA[n - 1].toFixed(1)} after ${n} years</text>`;
+      s += `<text x="${x(n - 1) - 4}" y="${y(cB[n - 1]) + 15}" text-anchor="end" font-size="11" fill="${C.shock}">B: ${cB[n - 1].toFixed(1)}</text>`;
+      s += `<line x1="${M.left}" y1="${axisY}" x2="${M.left + PW}" y2="${axisY}" stroke="${C.muted}" />`;
+      s += `<line x1="${M.left}" y1="${y0}" x2="${M.left}" y2="${axisY}" stroke="${C.muted}" />`;
+      s += `<text x="${M.left - 8}" y="${y(0) + 4}" text-anchor="end" font-size="11" fill="${C.muted}">0</text>`;
+      s += `<text x="${M.left - 8}" y="${y(yMax / 2) + 4}" text-anchor="end" font-size="11" fill="${C.muted}">${(yMax / 2).toFixed(0)}</text>`;
+      s += `<text x="${M.left - 44}" y="${y0 + PH2 / 2}" text-anchor="middle" font-size="12" fill="${C.text}" transform="rotate(-90 ${M.left - 44} ${y0 + PH2 / 2})">present value so far</text>`;
+      s += `<text x="${M.left + PW / 2}" y="${axisY + 36}" text-anchor="middle" font-size="13" fill="${C.text}">year (the first 24 of the run; present values over the whole run: A ${pvA.toFixed(1)}, B ${pvB.toFixed(1)})</text>`;
+      const title = `Firm A plays ${label(o.sA, o.T)}, firm B plays ${label(o.sB, o.T)}` + (o.p > 0 ? '; one run, ○ marks a mistake' : '');
+      s += `<text x="${M.left + 12}" y="${M.top - 14}" font-size="13" font-weight="600" fill="${C.text}">${title}</text>`;
+      s += `<text x="${M.left + PW - 4}" y="${M.top - 14}" text-anchor="end" font-size="11" fill="${C.muted}">click a cell to force that action${forcedCount() ? '; dark border = forced' : ''}</text>`;
+      $('chart1').innerHTML = s;
+    }
+
+    // ── Charts 3 and 4: a firm's five options ──
+    function renderOptions(svgId, firm, o, opts, chosen, actual) {
+      const M = { top: 40, right: 170, bottom: 42, left: 200 };
+      const PW = W - M.left - M.right, PH = H - M.top - M.bottom;
+      const per = v => (1 - o.delta) * v;
+      const lo = Math.min(o.S, o.P, o.R, o.Tm, 0), hi = Math.max(o.S, o.P, o.R, o.Tm);
+      const x = v => M.left + (v - lo) / (hi - lo) * PW;
+      const mx = Math.max(...opts.map(q => q.v));
+      const rows = opts.concat([{ s: 'actual', v: actual }]);
+      const rh = PH / rows.length, bh = rh * 0.56;
+      let s = '';
+      for (let k = 1; k < 5; k++) { const v = lo + (hi - lo) * k / 5; s += `<line x1="${x(v)}" y1="${M.top}" x2="${x(v)}" y2="${M.top + PH}" stroke="${C.grid}" />`; }
+      const nForced = Object.keys(forced[firm]).length;
+      rows.forEach((q, i) => {
+        const y = M.top + i * rh + (rh - bh) / 2, pv = per(q.v), isAct = q.s === 'actual';
+        const best = !isAct && q.v >= mx - 1e-6, isChosen = q.s === chosen, beats = isAct && q.v > mx + 1e-6;
+        if (isAct) s += `<line x1="${M.left - 190}" y1="${y - (rh - bh) / 2}" x2="${M.left + PW + 160}" y2="${y - (rh - bh) / 2}" stroke="${C.border || '#e5e7eb'}" />`;
+        s += `<rect x="${x(lo)}" y="${y}" width="${Math.max(0, x(pv) - x(lo))}" height="${bh}" fill="${isAct ? ACT : SC[q.s]}" opacity="${isAct ? 0.9 : (best ? 0.95 : 0.45)}" />`;
+        if (isChosen) s += `<rect x="${x(lo) - 2}" y="${y - 3}" width="${Math.max(0, x(pv) - x(lo)) + 4}" height="${bh + 6}" fill="none" stroke="${C.text}" stroke-width="2" />`;
+        const name = isAct ? 'actual play' : label(q.s, o.T);
+        s += `<text x="${M.left - 10}" y="${y + bh / 2 + (isAct ? -2 : 4)}" text-anchor="end" font-size="12" fill="${C.text}" ${isChosen || isAct ? 'font-weight="600"' : ''}>${name}${isChosen ? ' (chosen)' : ''}</text>`;
+        if (isAct) s += `<text x="${M.left - 10}" y="${y + bh / 2 + 12}" text-anchor="end" font-size="10" fill="${C.muted}">${nForced ? `${label(chosen, o.T)} with ${nForced} forced action${nForced > 1 ? 's' : ''}` : `${label(chosen, o.T)}, nothing forced`}</text>`;
+        s += `<text x="${x(pv) + 8}" y="${y + bh / 2 + 4}" font-size="12" fill="${C.text}" ${best || beats ? 'font-weight="600"' : ''}>${pv.toFixed(2)} per year${best ? ' · best rule' : ''}${beats ? ' · beats every rule' : ''}</text>`;
+        s += `<text x="${x(pv) + 8}" y="${y + bh / 2 + 18}" font-size="10" fill="${C.muted}">present value ${q.v.toFixed(1)}</text>`;
+      });
+      s += `<line x1="${M.left}" y1="${M.top + PH}" x2="${M.left + PW}" y2="${M.top + PH}" stroke="${C.muted}" />`;
+      for (let k = 0; k <= 5; k++) { const v = lo + (hi - lo) * k / 5; s += `<text x="${x(v)}" y="${M.top + PH + 16}" text-anchor="middle" font-size="11" fill="${C.muted}">${v.toFixed(0)}</text>`; }
+      s += `<text x="${M.left + PW / 2}" y="${M.top + PH + 34}" text-anchor="middle" font-size="12" fill="${C.text}">profit per year, discounted</text>`;
+      const other = firm === 'A' ? 'B' : 'A', sOther = firm === 'A' ? o.sB : o.sA;
+      s += `<text x="${M.left - 190}" y="${M.top - 14}" font-size="13" font-weight="600" fill="${C.text}">Firm ${firm}'s five rules against firm ${other}'s ${label(sOther, o.T)}, and its actual play, at δ = ${o.delta.toFixed(2)}</text>`;
+      $(svgId).innerHTML = s;
+    }
+
+    // ── Chart 2: value of each option by δ ──
+    function renderDeltaChart(o, firm) {
+      const M = { top: 40, right: 24, bottom: 62, left: 64 };
+      const PW = W - M.left - M.right, PH = H - M.top - M.bottom, axisY = M.top + PH;
+      const sOpp = firm === 'A' ? o.sB : o.sA;
+      const n = o.p > 0 ? 34 : 100, ds = [];
+      for (let i = 0; i < n; i++) ds.push(0.99 * i / (n - 1));
+      const lo = Math.min(o.S, o.P, o.R, o.Tm), hi = Math.max(o.S, o.P, o.R, o.Tm);
+      const x = d => M.left + d / 1.0 * PW, y = v => M.top + (1 - (v - lo) / (hi - lo)) * PH * 0.92 + PH * 0.04;
+      let s = '';
+      for (let v = lo; v <= hi + 1e-9; v += 2) s += `<line x1="${M.left}" y1="${y(v)}" x2="${M.left + PW}" y2="${y(v)}" stroke="${C.grid}" />`;
+      const series = {};
+      const clean = cleanFor(firm), actualF = { A: forced.A, B: forced.B };
+      const val = (st, d, f) => { const oo = { delta: d, T: o.T, p: o.p, pay: o.pay, forced: f }; return (1 - d) * (firm === 'A' ? RG.value(st, sOpp, oo, RUNS_CHART, SEED).pvA : RG.value(sOpp, st, oo, RUNS_CHART, SEED).pvB); };
+      for (const st of RG.STRATS) series[st] = ds.map(d => val(st, d, clean));
+      const own = firm === 'A' ? o.sA : o.sB;
+      series.actual = ds.map(d => val(own, d, actualF));
+      for (const st of ORDER) s += poly(series[st].map((v, i) => [x(ds[i]), y(v)]), SC[st], SW[st], SD[st]);
+      s += poly(series.actual.map((v, i) => [x(ds[i]), y(v)]), ACT, 2, null);
+      series.actual.forEach((v, i) => { if (i % Math.max(1, Math.round(n / 20)) === 0) s += `<circle cx="${x(ds[i])}" cy="${y(v)}" r="3.4" fill="#ffffff" stroke="${ACT}" stroke-width="2" />`; });
+      s += `<line x1="${x(o.delta)}" y1="${M.top}" x2="${x(o.delta)}" y2="${axisY}" stroke="${C.text}" stroke-width="1" stroke-dasharray="4 3" />`;
+      s += `<text x="${x(o.delta) + (o.delta > 0.8 ? -5 : 5)}" y="${axisY - 8}" text-anchor="${o.delta > 0.8 ? 'end' : 'start'}" font-size="11" fill="${C.text}">current δ = ${o.delta.toFixed(2)}</text>`;
+      s += `<line x1="${M.left}" y1="${axisY}" x2="${M.left + PW}" y2="${axisY}" stroke="${C.muted}" />`;
+      s += `<line x1="${M.left}" y1="${M.top}" x2="${M.left}" y2="${axisY}" stroke="${C.muted}" />`;
+      for (let d = 0; d <= 1.0001; d += 0.2) s += `<text x="${x(d)}" y="${axisY + 16}" text-anchor="middle" font-size="11" fill="${C.muted}">${d.toFixed(1)}</text>`;
+      for (let v = lo; v <= hi + 1e-9; v += 2) s += `<text x="${M.left - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="${C.muted}">${v}</text>`;
+      s += `<text x="${M.left + PW / 2}" y="${axisY + 38}" text-anchor="middle" font-size="13" fill="${C.text}">discount factor δ</text>`;
+      s += `<text x="${M.left - 44}" y="${M.top + PH / 2}" text-anchor="middle" font-size="13" fill="${C.text}" transform="rotate(-90 ${M.left - 44} ${M.top + PH / 2})">profit per year, discounted</text>`;
+      const other = firm === 'A' ? 'B' : 'A';
+      s += `<text x="${M.left + 12}" y="${M.top - 14}" font-size="13" font-weight="600" fill="${C.text}">Firm ${firm}'s five rules and its actual play by δ, against firm ${other}'s ${label(sOpp, o.T)}${o.p > 0 ? ` (mistakes at p = ${o.p.toFixed(2)})` : ''}</text>`;
+      let lx = M.left + 12; const ly = M.top + 14;
+      s += `<rect x="${lx - 8}" y="${ly - 9}" width="${PW - 8}" height="18" fill="#ffffff" opacity="0.85" />`;
+      for (const st of ['high', 'low', 'tft', 'grim', 'finite']) {
+        s += `<line x1="${lx}" y1="${ly}" x2="${lx + 22}" y2="${ly}" stroke="${SC[st]}" stroke-width="${SW[st]}" ${SD[st] ? `stroke-dasharray="${SD[st]}"` : ''} /><text x="${lx + 28}" y="${ly + 4}" font-size="12" fill="${C.text}">${RG.NAMES[st]}</text>`;
+        lx += 28 + RG.NAMES[st].length * 6.6 + 14;
+      }
+      s += `<line x1="${lx}" y1="${ly}" x2="${lx + 22}" y2="${ly}" stroke="${ACT}" stroke-width="2" /><circle cx="${lx + 11}" cy="${ly}" r="3.4" fill="#ffffff" stroke="${ACT}" stroke-width="2" /><text x="${lx + 28}" y="${ly + 4}" font-size="12" font-weight="600" fill="${C.text}">actual play</text>`;
+      s += `<text x="${M.left + PW - 6}" y="${axisY - 24}" text-anchor="end" font-size="11" fill="${C.muted}">rules that play the same way draw the same line</text>`;
+      $('chart4').innerHTML = s;
+    }
+
+    // ── Cards ──
+    function setCard(id, num, delta, cls) {
+      $(id + 'Out').textContent = num;
+      const d = $(id + 'Delta'); d.textContent = delta; d.className = 'delta' + (cls ? ' ' + cls : '');
+    }
+    function bestOf(opts) {
+      const mx = Math.max(...opts.map(q => q.v));
+      return { mx, set: opts.filter(q => q.v >= mx - 1e-6).map(q => q.s) };
+    }
+    function render() {
+      const o = params();
+      showVals();
+      const cur = RG.value(o.sA, o.sB, o, RUNS, SEED);
+      const per = v => (1 - o.delta) * v;
+      const oA = Object.assign({}, o, { forced: cleanFor('A') }), oB = Object.assign({}, o, { forced: cleanFor('B') });
+      const optsA = RG.STRATS.map(s => ({ s, v: RG.value(s, o.sB, oA, RUNS, SEED).pvA }));
+      const optsB = RG.STRATS.map(s => ({ s, v: RG.value(o.sA, s, oB, RUNS, SEED).pvB }));
+      const rec = RG.play(o.sA, o.sB, o, RG.mulberry32(SEED), 24, 24).rec;
+      renderPath(o, rec, cur.pvA, cur.pvB);
+      renderDeltaChart(o, o.chartFirm);
+      renderOptions('chart2', 'A', o, optsA, o.sA, cur.pvA);
+      renderOptions('chart3', 'B', o, optsB, o.sB, cur.pvB);
+      setCard('va', per(cur.pvA).toFixed(2), `present value ${cur.pvA.toFixed(1)} million at δ = ${o.delta.toFixed(2)}`);
+      setCard('vb', per(cur.pvB).toFixed(2), `present value ${cur.pvB.toFixed(1)} million at δ = ${o.delta.toFixed(2)}`);
+      const bA = bestOf(optsA), bB = bestOf(optsB);
+      const okA = cur.pvA >= bA.mx - 1e-6, okB = cur.pvB >= bB.mx - 1e-6;
+      const beatsA = cur.pvA > bA.mx + 1e-6, beatsB = cur.pvB > bB.mx + 1e-6;
+      const gainA = per(bA.mx - cur.pvA), gainB = per(bB.mx - cur.pvB);
+      const nameSet = set => set.length === 1 ? label(set[0], o.T) : `a tie among ${set.length}`;
+      const status = (firm, ok, beats, set, gain) => beats ? `${firm}'s actual play beats every rule on the menu` : ok ? `${firm}'s actual play is a best reply${set.length > 1 ? ' (tied: ' + set.map(s => RG.NAMES[s]).join(', ') + ')' : ''}` : `${firm} would gain ${gain.toFixed(2)} per year by switching to ${label(set[0], o.T)}`;
+      setCard('ba', nameSet(bA.set), status('A', okA, beatsA, bA.set, gainA), okA ? 'up' : 'down');
+      setCard('bb', nameSet(bB.set), status('B', okB, beatsB, bB.set, gainB), okB ? 'up' : 'down');
+      setCard('st', okA && okB ? 'Yes' : 'No', okA && okB ? 'each firm\'s actual play is a best reply to the other\'s, among the five rules' : (!okA && !okB ? 'both firms would switch' : (!okA ? 'firm A would switch' : 'firm B would switch')), okA && okB ? 'up' : 'down');
+      const cg = RG.critical('grim', o), cf = RG.critical('finite', o);
+      setCard('cr', `${cg === null ? 'none' : cg.toFixed(2)} · ${cf === null ? 'none' : cf.toFixed(2)}`, `against grim trigger · against finite punishment with T = ${o.T} (none: no δ below 0.99 is enough)`);
+    }
+
+    $('chart1').addEventListener('click', e => {
+      const g = e.target.closest ? e.target.closest('g[data-firm]') : null;
+      if (!g) return;
+      const firm = g.dataset.firm, t = +g.dataset.year;
+      const o = params();
+      if (forced[firm][t] !== undefined) delete forced[firm][t];
+      else {
+        const rec = RG.play(o.sA, o.sB, o, RG.mulberry32(SEED), 24, 24).rec;
+        forced[firm][t] = 1 - (firm === 'A' ? rec.aA[t] : rec.aB[t]);
+      }
+      render();
+    });
+    $('clearForced').addEventListener('click', () => { forced.A = {}; forced.B = {}; render(); });
+    ['sA', 'sB', 'cf'].forEach(id => $(id).addEventListener('change', render));
+    ['d', 't', 'p', 'rR', 'rS', 'rT', 'rP'].forEach(id => $(id).addEventListener('input', render));
+    document.querySelectorAll('.presets .preset').forEach(b => b.addEventListener('click', () => {
+      $('sA').value = b.dataset.sa; $('sB').value = b.dataset.sb; $('d').value = b.dataset.d; $('t').value = b.dataset.t; $('p').value = b.dataset.p; forced.A = {}; forced.B = {}; render();
+    }));
+    render();
+  </script>
+</body>
+</html>

@@ -10,4 +10,5 @@ Interactive simulations used in the MSc course *Digital Strategy and Markets* at
 - [Search costs and price dispersion](search-costs-and-price-dispersion.html): a buyer checks prices one shop at a time; cheaper checking narrows what people pay.
 - [Firm boundaries](firm-boundaries.html): forty activities can be bought on the market or made inside the firm; moving either cost line shifts where the boundary falls.
 - [The long tail in production](long-tail-in-production.html): cheaper publishing lets more songs enter, and how much that is worth depends on how well success can be predicted.
+- [Repeated game strategies](repeated-game-strategies.html): two agencies meet year after year, and which pricing rule earns most depends on how much they value the future.
 - [Algorithmic collusion](algorithmic-collusion.html): two pricing programs learn to hold prices above the competitive level, and forcing one of them to cut its price shows what holds that arrangement together.
